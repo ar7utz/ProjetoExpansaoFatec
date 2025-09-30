@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../src/output.css">
+    <link rel="stylesheet" href="../../../src/output.css">
     <link rel="shortcut icon" href="../../assets/icon/fatec-logo-nobackground.ico" type="image/x-icon">
-    <title>Empreendedorismo</title>
+    <title>Sociedade, Tecnologia E Inovação</title>
 
 </head>
 <body class="bg-gray-50 font-sans">
 
     <header class="bg-white shadow-sm">
-        <?php require_once ('../template/navbar.php'); ?>
+        <?php require_once ('../../template/navbar.php'); ?>
     </header>
         
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mt-6">
 
-        <h1 class="text-4xl font-extrabold text-gray-800 mb-6">EMPREENDEDORISMO</h1>
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-6">SOCIEDADE, TECNOLOGIA E INOVAÇÃO</h1>
         <p class="text-lg text-gray-700 leading-relaxed max-w-3xl mb-12">
             Bem-vindo à sala de Empreendedorismo! Aqui você encontrará recursos, projetos e
             atividades para desenvolver suas habilidades inovadoras e transformar ideias em realidade.
@@ -75,7 +75,7 @@
     </main>
 
     <footer>
-        <?php require_once ('../template/footer.php'); ?>
+        <?php require_once ('../../template/footer.php'); ?>
     </footer>
 
 </body>

@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+@theme{
+    --color-vermelho-fatec: #9C1D23; /* Vermelho Fatec */
+}

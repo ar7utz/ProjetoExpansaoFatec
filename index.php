@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="./src/output.css">
 
-    <link rel="shortcut icon" href="./assets/icon/fatec-logo-nobackground.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="./assets/icon/fatec-ico -branco.ico" type="image/x-icon">
 
     <title>Fatec Extensão Araçatuba</title>
 </head>
+
 <body class="min-h-screen bg-white">
     <!-- Header -->
     <header class="bg-white shadow-sm">
-        <?php require_once ('./modules/template/navbar.php'); ?>
+        <?php require_once('./modules/template/navbar.php'); ?>
     </header>
 
     <!-- Hero Section -->
@@ -23,12 +25,44 @@
         </div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
             <div class="max-w-2xl">
-                <h1 class="text-5xl font-bold mb-6">PROJETO CONHECER</h1>
+                <h1 class="text-5xl font-bold mb-6">PROJETO DE EXTENSÃO FATEC ARAÇATUBA</h1>
                 <p class="text-lg leading-relaxed">
-                    Conectando conhecimento acadêmico com a prática do mercado, o Projeto Conhecer+ oferece extensão universitária gratuita para impulsionar seu futuro.
+                    Conectando conhecimento acadêmico com a prática do mercado, Projeto de extensão universitária gratuita para impulsionar seu futuro.
                 </p>
             </div>
         </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 border-b border-gray-200">
+        <h2 class="text-2xl font-semibold text-gray-800">Bem-vindo ao Portal de Extensão da Fatec Araçatuba!</h2>
+        <p class="text-gray-600 mt-2">
+            Explore nossas salas temáticas e descubra recursos, projetos e atividades para expandir seus conhecimentos e habilidades.
+        </p>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <h1 class="text-2xl font-semibold text-gray-800">Fatec Aberta Araçatuba</h1>
+        <p class="mt-2 mb-8">
+            A Fatec Aberta Araçatuba é um espaço criado para aproximar a universidade das escolas públicas e da comunidade.
+            Por meio de projetos de extensão, promove-se a troca de conhecimentos em uma via de mão dupla: os estudantes compartilham
+            saberes acadêmicos e, ao mesmo tempo, aprendem com a realidade social em que estão inseridos.
+        </p>
+
+        <p class="mt-2 mb-8">
+            O objetivo é integrar ensino, pesquisa e extensão em ações práticas que contribuam para a formação dos alunos,
+            a valorização da cidadania e o fortalecimento do vínculo entre universidade e sociedade.
+        </p>
+
+        <p class="mt-2 mb-8">
+            Cada projeto está organizado em quatro grandes áreas — Empreendedorismo, Metodologia Científica,
+            Sociedade, Tecnologia e Inovação, e Administração Geral —, oferecendo atividades dinâmicas e
+            inovadoras que atendem às necessidades reais das escolas e da comunidade local.
+        </p>
+
+        <p class="mt-2 mb-8">
+            Assim, a Fatec Aberta Araçatuba reafirma seu compromisso com a educação de qualidade e com o 
+            desenvolvimento social da região, tornando-se um canal de transformação e impacto positivo.
+        </p>
     </div>
 
     <!-- Main Content -->
@@ -49,9 +83,12 @@
                     </div>
                 </div>
                 <h3 class="text-2xl font-bold text-white mb-6">EMPREENDEDORISMO</h3>
-                <button class="bg-blue-900 text-white px-6 py-2 rounded font-semibold hover:bg-blue-800 transition">
-                    <a href="./modules/salas/empreendedorismo.php">ACESSAR SALA</a>
-                </button>
+                <a href="./modules/public/salas/empreendedorismo.php">
+                    <button class="bg-blue-900 text-white px-6 py-2 rounded font-semibold hover:bg-blue-800 transition cursor-pointer">
+                        ACESSAR SALA
+                    </button>
+                </a>
+                
             </div>
 
             <!-- Card Metologia Científica -->
@@ -63,10 +100,13 @@
                         </svg>
                     </div>
                 </div>
-                <h3 class="text-2xl font-bold text-white mb-6">METOLOGIA CIENTÍFICA</h3>
-                <button class="bg-blue-900 text-white px-6 py-2 rounded font-semibold hover:bg-blue-800 transition">
-                    ACESSAR SALA
-                </button>
+                <h3 class="text-2xl font-bold text-white mb-6">METODOLOGIA CIENTÍFICA</h3>
+                <a href="./modules/public/salas/metodologiaCientifica.php">
+                    <button class="bg-blue-900 text-white px-6 py-2 rounded font-semibold hover:bg-blue-800 transition cursor-pointer">
+                        ACESSAR SALA
+                    </button>
+                </a>
+                
             </div>
 
             <!-- Card Sociedade, Technologia e Inovação -->
@@ -79,11 +119,14 @@
                     </div>
                 </div>
                 <h3 class="text-2xl font-bold text-white mb-6">
-                    SOCIEDADE, TECHNLOGIA E<br>INOVAÇÃO
+                    SOCIEDADE, TECNOLOGIA E INOVAÇÃO
                 </h3>
-                <button class="bg-blue-900 text-white px-6 py-2 rounded font-semibold hover:bg-blue-800 transition">
-                    ACESSAR SALA
-                </button>
+                <a href="./modules/public/salas/STechI.php">
+                    <button class="bg-blue-900 text-white px-6 py-2 rounded font-semibold hover:bg-blue-800 transition cursor-pointer">
+                        ACESSAR SALA
+                    </button>
+                </a>
+                
             </div>
 
             <!-- Card Adminsticação Geral -->
@@ -95,14 +138,17 @@
                         </svg>
                     </div>
                 </div>
-                <h3 class="text-2xl font-bold text-white mb-6">ADMINSTICAÇÃO GERAL</h3>
-                <button class="bg-blue-900 text-white px-6 py-2 rounded font-semibold hover:bg-blue-800 transition">
-                    ACESSAR SALA
-                </button>
+                <h3 class="text-2xl font-bold text-white mb-6">ADMINISTRAÇÃO GERAL</h3>
+                <a href="./modules/public/salas/admGeral.php">
+                    <button class="bg-blue-900 text-white px-6 py-2 rounded font-semibold hover:bg-blue-800 transition cursor-pointer">
+                        ACESSAR SALA    
+                    </button>
+                </a>
+                
             </div>
         </div>
 
-        <!-- Avisos Recentes -->
+        <!-- Avisos Recentes //  bloco while bd -->
         <div class="bg-gray-100 rounded-lg p-8 shadow">
             <h3 class="text-2xl font-bold text-blue-900 mb-6">AVISOS RECENTES</h3>
             <ul class="space-y-3">
@@ -121,5 +167,10 @@
             </ul>
         </div>
     </div>
+
+    <footer>
+        <?php require_once ('./modules/template/footer.php'); ?>
+    </footer>
 </body>
+
 </html>
