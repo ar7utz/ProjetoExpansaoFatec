@@ -1,3 +1,6 @@
+<?php
+    require_once('./assets/bd/conexao.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -155,18 +158,26 @@
         <div class="bg-gray-100 rounded-lg p-8 shadow">
             <h3 class="text-2xl font-bold text-blue-900 mb-6">AVISOS RECENTES</h3>
             <ul class="space-y-3">
-                <li class="flex items-start">
-                    <span class="text-blue-900 mr-2 text-xl">•</span>
-                    <span class="text-gray-700">
-                        <strong>20/03/2024:</strong> Inscrições abertas para o minicurso de Liderança Inovdora
-                    </span>
-                </li>
-                <li class="flex items-start">
-                    <span class="text-blue-900 mr-2 text-xl">•</span>
-                    <span class="text-gray-700">
-                        <strong>15/03/2024:</strong> Novo material do apoio disponível na sala de "Futuro do Trabalho" dia 05/04
-                    </span>
-                </li>
+                    <?php
+                    $sqlAvisos = "SELECT * FROM avisos ORDER BY data DESC";
+                    $resultAvisos = $conn->query($sqlAvisos);
+                    ?>
+                    <?php if ($resultAvisos->num_rows > 0): ?>
+                        <?php while ($aviso = $resultAvisos->fetch_assoc()): ?>
+                            <li class="flex justify-between items-center">
+                                <span>
+                                    <span class="text-xs text-gray-400 ml-2">(<?php echo date('d/m/Y H:i', strtotime($aviso['data'])); ?>)</span>
+                                    <?php echo htmlspecialchars($aviso['descricao']); ?>
+                                </span>
+                                <span>
+                                    <a href="./avisos/editAviso.php?id=<?php echo $aviso['id']; ?>" class="text-blue-500 hover:underline mr-2"><i class="fa fa-edit"></i></a>
+                                    <a href="./avisos/deleteAviso.php?id=<?php echo $aviso['id']; ?>" class="text-red-500 hover:underline" onclick="return confirm('Tem certeza que deseja excluir este aviso?')"><i class="fa fa-trash"></i></a>
+                                </span>
+                            </li>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <li>Nenhum aviso encontrado.</li>
+                    <?php endif; ?>
             </ul>
         </div>
     </div>

@@ -250,16 +250,37 @@ if ($salaSelecionada) {
                 <span class="text-lg font-semibold">Gerenciar Avisos</span>
             </div>
             <div class="bg-white rounded shadow mb-8 p-6">
-                <form>
+                <form method="POST" action="./avisos/addAviso.php" enctype="multipart/form-data">
                     <label for="novoAviso" class="block mb-2 font-semibold">Novo aviso:</label>
-                    <textarea id="novoAviso" class="w-full border px-3 py-2 rounded mb-4" rows="3"></textarea>
-                    <button type="button" class="bg-yellow-400 text-gray-800 px-4 py-2 rounded hover:bg-yellow-500">Adicionar Aviso</button>
+                    <textarea id="descricao" name="descricao" class="w-full border px-3 py-2 rounded mb-4" rows="3"></textarea>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-yellow-400 text-gray-800 px-4 py-2 rounded hover:bg-yellow-500">Adicionar Aviso</button>
+                    </div>
                 </form>
                 <div class="mt-6">
                     <h4 class="font-semibold mb-2">Avisos recentes:</h4>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li>Exemplo de aviso já cadastrado.</li>
-                        <!-- ...avisos dinâmicos via PHP... -->
+                        <?php
+                        // Exibir avisos do mais novo para o mais antigo
+                        $sqlAvisos = "SELECT * FROM avisos ORDER BY data DESC";
+                        $resultAvisos = $conn->query($sqlAvisos);
+                        ?>
+                        <?php if ($resultAvisos->num_rows > 0): ?>
+                            <?php while ($aviso = $resultAvisos->fetch_assoc()): ?>
+                                <li class="flex justify-between items-center">
+                                    <span>
+                                        <?php echo htmlspecialchars($aviso['descricao']); ?>
+                                        <span class="text-xs text-gray-400 ml-2">(<?php echo date('d/m/Y H:i', strtotime($aviso['data'])); ?>)</span>
+                                    </span>
+                                    <span>
+                                        <a href="./avisos/editAviso.php?id=<?php echo $aviso['id']; ?>" class="text-blue-500 hover:underline mr-2"><i class="fa fa-edit"></i></a>
+                                        <a href="./avisos/deleteAviso.php?id=<?php echo $aviso['id']; ?>" class="text-red-500 hover:underline" onclick="return confirm('Tem certeza que deseja excluir este aviso?')"><i class="fa fa-trash"></i></a>
+                                    </span>
+                                </li>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <li>Nenhum aviso encontrado.</li>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </div>

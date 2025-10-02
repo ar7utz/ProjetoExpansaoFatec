@@ -4,9 +4,9 @@
         
         <div class="flex items-center space-x-2">
             <?php $ehIndex = basename($_SERVER['SCRIPT_NAME']) === 'index.php';?>
-            <a href="<?php echo $ehIndex ? 'javascript:location.reload();' : '../../../index.php'; ?>">
-                <img src="../../assets/imgs/fatec_ra_aracatuba_aracatuba_cor.png" alt="Logo Fatec" class="w-16 h-10"> 
-            </a>
+                <a href="<?php echo $ehIndex ? 'javascript:location.reload();' : '../../../index.php'; ?>">
+                    <img src="<?php echo $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST']; ?>/ProjetoExpansaoFatec/assets/imgs/fatec_ra_aracatuba_aracatuba_cor.png" alt="Logo Fatec" class="w-16 h-16 object-contain mr-2">
+                </a>
             <span class="font-bold text-xl text-gray-800 tracking-tight whitespace-nowrap">
                 Projeto de Extensão - Fatec
             </span>
@@ -14,7 +14,7 @@
         
         <div class="hidden md:flex space-x-8 text-sm font-medium h-full items-center">
             <?php
-            $ehIndex = basename($_SERVER['SCRIPT_NAME']) === 'index.php';
+                $ehIndex = basename($_SERVER['SCRIPT_NAME']) === 'index.php';
             ?>
             <a 
                 href="<?php echo $ehIndex ? 'javascript:location.reload();' : '../../../index.php'; ?>" 
