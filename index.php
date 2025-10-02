@@ -18,55 +18,58 @@
         <?php require_once('./modules/template/navbar.php'); ?>
     </header>
 
-    <!-- Hero Section -->
-    <div class="relative bg-gradient-to-r from-blue-900 to-blue-700 text-white overflow-hidden">
-        <div class="absolute inset-0 opacity-20">
-            <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200" alt="Students" class="w-full h-full object-cover">
-        </div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-            <div class="max-w-2xl">
-                <h1 class="text-5xl font-bold mb-6">PROJETO DE EXTENSÃO FATEC ARAÇATUBA</h1>
-                <p class="text-lg leading-relaxed">
-                    Conectando conhecimento acadêmico com a prática do mercado, Projeto de extensão universitária gratuita para impulsionar seu futuro.
-                </p>
+    <div id="Sobre" class="">
+        <!-- Hero Section -->
+        <div class="relative bg-gradient-to-r from-blue-900 to-blue-700 text-white overflow-hidden">
+            <div class="absolute inset-0 opacity-20">
+                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200" alt="Students" class="w-full h-full object-cover">
+            </div>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+                <div class="max-w-2xl">
+                    <h1 class="text-5xl font-bold mb-6">PROJETO DE EXTENSÃO FATEC ARAÇATUBA</h1>
+                    <p class="text-lg leading-relaxed">
+                        Conectando conhecimento acadêmico com a prática do mercado, Projeto de extensão universitária gratuita para impulsionar seu futuro.
+                    </p>
+                </div>
             </div>
         </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 border-b border-gray-200">
+            <h2 class="text-2xl font-semibold text-gray-800">Bem-vindo ao Portal de Extensão da Fatec Araçatuba!</h2>
+            <p class="text-gray-600 mt-2">
+                Explore nossas salas temáticas e descubra recursos, projetos e atividades para expandir seus conhecimentos e habilidades.
+            </p>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <h1 class="text-2xl font-semibold text-gray-800">Fatec Aberta Araçatuba</h1>
+            <p class="mt-2 mb-8">
+                A Fatec Aberta Araçatuba é um espaço criado para aproximar a universidade das escolas públicas e da comunidade.
+                Por meio de projetos de extensão, promove-se a troca de conhecimentos em uma via de mão dupla: os estudantes compartilham
+                saberes acadêmicos e, ao mesmo tempo, aprendem com a realidade social em que estão inseridos.
+            </p>
+
+            <p class="mt-2 mb-8">
+                O objetivo é integrar ensino, pesquisa e extensão em ações práticas que contribuam para a formação dos alunos,
+                a valorização da cidadania e o fortalecimento do vínculo entre universidade e sociedade.
+            </p>
+
+            <p class="mt-2 mb-8">
+                Cada projeto está organizado em quatro grandes áreas — Empreendedorismo, Metodologia Científica,
+                Sociedade, Tecnologia e Inovação, e Administração Geral —, oferecendo atividades dinâmicas e
+                inovadoras que atendem às necessidades reais das escolas e da comunidade local.
+            </p>
+
+            <p class="mt-2 mb-8">
+                Assim, a Fatec Aberta Araçatuba reafirma seu compromisso com a educação de qualidade e com o 
+                desenvolvimento social da região, tornando-se um canal de transformação e impacto positivo.
+            </p>
+        </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 border-b border-gray-200">
-        <h2 class="text-2xl font-semibold text-gray-800">Bem-vindo ao Portal de Extensão da Fatec Araçatuba!</h2>
-        <p class="text-gray-600 mt-2">
-            Explore nossas salas temáticas e descubra recursos, projetos e atividades para expandir seus conhecimentos e habilidades.
-        </p>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h1 class="text-2xl font-semibold text-gray-800">Fatec Aberta Araçatuba</h1>
-        <p class="mt-2 mb-8">
-            A Fatec Aberta Araçatuba é um espaço criado para aproximar a universidade das escolas públicas e da comunidade.
-            Por meio de projetos de extensão, promove-se a troca de conhecimentos em uma via de mão dupla: os estudantes compartilham
-            saberes acadêmicos e, ao mesmo tempo, aprendem com a realidade social em que estão inseridos.
-        </p>
-
-        <p class="mt-2 mb-8">
-            O objetivo é integrar ensino, pesquisa e extensão em ações práticas que contribuam para a formação dos alunos,
-            a valorização da cidadania e o fortalecimento do vínculo entre universidade e sociedade.
-        </p>
-
-        <p class="mt-2 mb-8">
-            Cada projeto está organizado em quatro grandes áreas — Empreendedorismo, Metodologia Científica,
-            Sociedade, Tecnologia e Inovação, e Administração Geral —, oferecendo atividades dinâmicas e
-            inovadoras que atendem às necessidades reais das escolas e da comunidade local.
-        </p>
-
-        <p class="mt-2 mb-8">
-            Assim, a Fatec Aberta Araçatuba reafirma seu compromisso com a educação de qualidade e com o 
-            desenvolvimento social da região, tornando-se um canal de transformação e impacto positivo.
-        </p>
-    </div>
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div id="Cursos" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 class="text-3xl font-bold text-center text-blue-900 mb-12">
             SELECIONE SUA ÁREA DE INTERESSE
         </h2>
@@ -168,7 +171,7 @@
         </div>
     </div>
 
-    <footer>
+    <footer id="Footer">
         <?php require_once ('./modules/template/footer.php'); ?>
     </footer>
 </body>
