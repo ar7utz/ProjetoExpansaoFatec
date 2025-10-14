@@ -5,32 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../../src/output.css">
     <link rel="shortcut icon" href="../../assets/icon/fatec-logo-nobackground.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="../../../assets/icon/fatec-ico -branco.ico" type="image/x-icon">
-    <title>Metodologia Científica</title>
-
+    <title>Futebol</title>
 </head>
 <body class="bg-gray-50 font-sans">
-
     <header class="bg-white shadow-sm">
         <?php require_once ('../../template/navbar.php'); ?>
     </header>
-        
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mt-6">
-
-        <h1 class="text-4xl font-extrabold text-gray-800 mb-6">METODOLOGIA CIENTÍFICA</h1>
-        <p class="text-lg text-gray-700 leading-relaxed max-w-3xl mb-12">
-            Bem-vindo à sala de Metodologia Científica! Aqui você encontrará recursos, projetos e
-            atividades para desenvolver suas habilidades inovadoras e transformar ideias em realidade.
-            Explore materiais e participe!
-        </p>
-
+        <div class="flex flex-col">
+            <div class="flex flex-row w-full mb-12">
+                <div class="flex-[7] pr-8">
+                    <h1 class="text-4xl font-extrabold text-gray-800 mb-6">Futebol</h1>
+                    <p class="text-lg text-gray-700 leading-relaxed max-w-3xl mb-12">
+                        Futebol né
+                    </p>
+                </div>
+                <div class="flex-[3] flex flex-col items-center justify-center">
+                    <h2 class="text-xl font-bold mb-2">Professor</h2><img class="w-40 h-40 rounded-lg object-cover mb-2" src="../../../assets/imgs/professores/68eeafac0d0af_piso esprudeu.jpeg" alt="Foto do professor">                    <p class="text-md text-gray-700 font-semibold mb-2">Artur</p>
+                    <p class="text-gray-600 text-sm text-center">Ótimo professor</p>
+                </div>
+            </div>
+        </div>
         <h2 class="text-2xl font-semibold text-gray-800 mb-8 border-b-2 pb-2">PROJETOS E ATIVIDADES</h2>
-
         <?php
             require_once('../../../assets/bd/conexao.php');
-    
-            // Descobrir o id da sala pelo nome (ajuste conforme o nome cadastrado no banco)
-            $nomeSala = "Metodologia Científica";
+            $nomeSala = "Futebol";
             $sqlSala = "SELECT id FROM sala WHERE nome = ?";
             $stmtSala = $conn->prepare($sqlSala);
             $stmtSala->bind_param('s', $nomeSala);
@@ -38,7 +37,7 @@
             $resSala = $stmtSala->get_result();
             $sala = $resSala->fetch_assoc();
             $id_sala = $sala ? $sala['id'] : null;
-    
+
             // Materiais - paginação
             $itensPorPaginaMat = 10;
             $paginaAtualMat = isset($_GET['pagina_materiais']) ? max(1, intval($_GET['pagina_materiais'])) : 1;
@@ -53,7 +52,7 @@
                 $resultTotalMat = $stmtTotalMat->get_result();
                 $totalMateriais = $resultTotalMat->fetch_assoc()['total'];
                 $totalPaginasMat = ceil($totalMateriais / $itensPorPaginaMat);
-    
+
                 $sqlMat = "SELECT * FROM materiais WHERE id_sala = ? ORDER BY data DESC LIMIT ? OFFSET ?";
                 $stmtMat = $conn->prepare($sqlMat);
                 $stmtMat->bind_param('iii', $id_sala, $itensPorPaginaMat, $offsetMat);
@@ -63,7 +62,7 @@
                     $materiais[] = $row;
                 }
             }
-        
+
             // Links - paginação
             $itensPorPaginaLinks = 10;
             $paginaAtualLinks = isset($_GET['pagina_links']) ? max(1, intval($_GET['pagina_links'])) : 1;
@@ -78,7 +77,7 @@
                 $resultTotalLinks = $stmtTotalLinks->get_result();
                 $totalLinks = $resultTotalLinks->fetch_assoc()['total'];
                 $totalPaginasLinks = ceil($totalLinks / $itensPorPaginaLinks);
-    
+
                 $sqlLinks = "SELECT * FROM links WHERE id_sala = ? ORDER BY data DESC LIMIT ? OFFSET ?";
                 $stmtLinks = $conn->prepare($sqlLinks);
                 $stmtLinks->bind_param('iii', $id_sala, $itensPorPaginaLinks, $offsetLinks);
@@ -89,7 +88,6 @@
                 }
             }
         ?>
-
         <!-- Materiais Dinâmicos (tabela e paginação) -->
         <section class="mt-12">
             <h2 class="text-2xl font-semibold text-gray-800 mb-4">Materiais da Sala</h2>
@@ -116,12 +114,11 @@
                                                 <?php echo htmlspecialchars($mat['arquivo']); ?>
                                             </a>
                                         </td>
-                                        <td class="px-6 py-4"><?php echo date('d/m/Y H:i', strtotime($mat['data'])); ?></td>
+                                        <td class="px-6 py-4"><?php echo date('d/m/Y', strtotime($mat['data'])); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
-                        <!-- Paginação dos materiais -->
                         <?php if ($totalPaginasMat > 1): ?>
                             <div class="flex justify-center mt-4 space-x-2">
                                 <?php for ($i = 1; $i <= $totalPaginasMat; $i++): ?>
@@ -135,7 +132,6 @@
                 </div>
             </div>
         </section>
-
         <!-- Links Dinâmicos (tabela e paginação) -->
         <section class="mt-8">
             <h2 class="text-2xl font-semibold text-gray-800 mb-4">Links Úteis</h2>
@@ -161,12 +157,11 @@
                                                 <?php echo htmlspecialchars($link['url']); ?>
                                             </a>
                                         </td>
-                                        <td class="px-6 py-4"><?php echo date('d/m/Y H:i', strtotime($link['data'])); ?></td>
+                                        <td class="px-6 py-4"><?php echo date('d/m/Y', strtotime($link['data'])); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
-                        <!-- Paginação dos links -->
                         <?php if ($totalPaginasLinks > 1): ?>
                             <div class="flex justify-center mt-4 space-x-2">
                                 <?php for ($i = 1; $i <= $totalPaginasLinks; $i++): ?>
@@ -180,12 +175,9 @@
                 </div>
             </div>
         </section>
-
     </main>
-
     <footer>
         <?php require_once ('../../template/footer.php'); ?>
     </footer>
-
 </body>
 </html>

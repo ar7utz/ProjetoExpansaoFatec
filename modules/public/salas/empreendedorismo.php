@@ -16,12 +16,32 @@
         
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mt-6">
 
-        <h1 class="text-4xl font-extrabold text-gray-800 mb-6">EMPREENDEDORISMO</h1>
-        <p class="text-lg text-gray-700 leading-relaxed max-w-3xl mb-12">
-            Bem-vindo à sala de Empreendedorismo! Aqui você encontrará recursos, projetos e
-            atividades para desenvolver suas habilidades inovadoras e transformar ideias em realidade.
-            Explore materiais e participe!
-        </p>
+    <div class="flex flex-col">
+        <!-- Substitua o bloco do título e professor por este layout flexível: -->
+        <div class="flex flex-row w-full mb-12">
+            <!-- Título e descrição: 70% -->
+            <div class="w-full md:w-7/10 pr-8">
+                <h1 class="text-4xl font-extrabold text-gray-800 mb-6">EMPREENDEDORISMO</h1>
+                <p class="text-lg text-gray-700 leading-relaxed max-w-3xl mb-12">
+                    Bem-vindo à sala de Empreendedorismo! Aqui você encontrará recursos, projetos e
+                    atividades para desenvolver suas habilidades inovadoras e transformar ideias em realidade.
+                    Explore materiais e participe!
+                </p>
+            </div>
+            <!-- Professor: 30% -->
+            <div class="w-full md:w-3/10 flex flex-col items-center justify-center">
+                <h2 class="text-xl font-bold mb-2">Professor</h2>
+                <img class="w-30 h-40 rounded-lg object-cover mb-2" src="../../../assets/imgs/fatec_ra_aracatuba_aracatuba_cor.png" alt="Foto do professor">
+                <p class="text-md text-gray-700 font-semibold mb-2">Nome do Professor</p>
+                <p class="text-gray-600 text-sm text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+                    Iusto quam excepturi quis laudantium ipsam aperiam sit assumenda mollitia, quo ex. 
+                    Ullam amet ex rerum accusamus reprehenderit accusantium, quidem laboriosam non?
+                </p>
+            </div>
+        </div>
+    </div>
+
+
 
         <h2 class="text-2xl font-semibold text-gray-800 mb-8 border-b-2 pb-2">PROJETOS E ATIVIDADES</h2>
 
@@ -115,7 +135,7 @@
                                                 <?php echo htmlspecialchars($mat['arquivo']); ?>
                                             </a>
                                         </td>
-                                        <td class="px-6 py-4"><?php echo date('d/m/Y H:i', strtotime($mat['data'])); ?></td>
+                                        <td class="px-6 py-4"><?php echo date('d/m/Y', strtotime($mat['data'])); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -160,7 +180,7 @@
                                                 <?php echo htmlspecialchars($link['url']); ?>
                                             </a>
                                         </td>
-                                        <td class="px-6 py-4"><?php echo date('d/m/Y H:i', strtotime($link['data'])); ?></td>
+                                        <td class="px-6 py-4"><?php echo date('d/m/Y', strtotime($link['data'])); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

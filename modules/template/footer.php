@@ -1,4 +1,4 @@
-<footer class="bg-gray-800 text-white py-6 mt-12">
+<footer class="bg-cinza-fatec text-white py-6 mt-12">
     <div class="max-w-7xl mx-auto text-center text-sm">
         &copy; <?php echo date("Y"); ?> Projeto de Extensão <a target="_blank" href="https://www.fatecaracatuba.edu.br/novo/">Fatec Araçatuba</a>. Todos os direitos reservados.
         

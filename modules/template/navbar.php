@@ -7,7 +7,7 @@
                 <a href="<?php echo $ehIndex ? 'javascript:location.reload();' : '../../../index.php'; ?>">
                     <img src="<?php echo $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST']; ?>/ProjetoExpansaoFatec/assets/imgs/fatec_ra_aracatuba_aracatuba_cor.png" alt="Logo Fatec" class="w-16 h-16 object-contain mr-2">
                 </a>
-            <span class="font-bold text-xl text-gray-800 tracking-tight whitespace-nowrap">
+            <span class="font-bold text-xl text-gray-800 tracking-tight whitespace-nowrap ml-4">
                 Projeto de Extensão - Fatec
             </span>
         </div>
@@ -18,13 +18,13 @@
             ?>
             <a 
                 href="<?php echo $ehIndex ? 'javascript:location.reload();' : '../../../index.php'; ?>" 
-                class="text-gray-600 hover:text-blue-900 transition hover:underline decoration-4 hover:decoration-vermelho-fatec hover:transition"
+                class="text-gray-600 hover:text-cinza-fatec transition hover:underline decoration-4 hover:decoration-vermelho-fatec hover:transition"
             >
                 Início
             </a>
-            <a href="#Sobre" class="text-gray-600 hover:text-blue-900 transition hover:underline decoration-4 hover:decoration-vermelho-fatec hover:transition">Sobre</a>
-            <a href="#Cursos" class="text-gray-600 hover:text-blue-900 transition hover:underline decoration-4 hover:decoration-vermelho-fatec hover:transition">Cursos</a>
-            <a href="#Footer" class="text-gray-600 hover:text-blue-900 transition hover:underline decoration-4 hover:decoration-vermelho-fatec hover:transition">Contato</a>
+            <a href="#Sobre" class="text-gray-600 hover:text-cinza-fatec transition hover:underline decoration-4 hover:decoration-vermelho-fatec hover:transition">Sobre</a>
+            <a href="#Cursos" class="text-gray-600 hover:text-cinza-fatec transition hover:underline decoration-4 hover:decoration-vermelho-fatec hover:transition">Cursos</a>
+            <a href="#Footer" class="text-gray-600 hover:text-cinza-fatec transition hover:underline decoration-4 hover:decoration-vermelho-fatec hover:transition">Contato</a>
         </div>
     </div>
 </nav>

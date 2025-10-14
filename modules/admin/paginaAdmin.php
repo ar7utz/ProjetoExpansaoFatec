@@ -97,6 +97,10 @@ if ($salaSelecionada) {
             <li>
                 <a id="btnAvisos" class="block px-4 py-2 rounded hover:bg-cinza-fatec cursor-pointer" href="javascript:void(0);">Avisos</a>
             </li>
+
+            <li>
+                <a id="AddSala" class="block px-4 py-2 rounded hover:bg-cinza-fatec cursor-pointer" href="javascript:void(0);">Adicionar sala</a>
+            </li>
         </ul>
     </nav>
     
@@ -112,8 +116,45 @@ if ($salaSelecionada) {
 
         <!-- Conteúdo dinâmico das salas -->
         <div id="salaTabs" class="<?php echo $salaSelecionada ? '' : 'hidden'; ?>">
-            <div class="mb-4">
-                <span class="text-lg font-semibold" id="salaSelecionada"><?php echo htmlspecialchars($nomeSalaSelecionada); ?></span>
+            <div class="flex p-4 ml-2">
+                <div class="flex flex-col">
+                    <div class="flex gap-2 mb-4 mt-2">
+                        <span class="text-lg font-semibold" id="salaSelecionada">
+                            <?php echo htmlspecialchars($nomeSalaSelecionada); ?>
+                        </span>
+                        <a href="?editSala=<?php echo $salaSelecionada; ?>" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center gap-2">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                        <a href="javascript:void(0);" onclick="abrirModalExcluir('sala', <?php echo $salaSelecionada; ?>);" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center gap-2">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    </div>
+                    
+                    <?php
+                    // Exibe imagem da sala, se existir
+                    foreach ($salas as $sala) {
+                        if ($sala['id'] == $salaSelecionada) {
+                            // Imagem da sala
+                            if (!empty($sala['foto_sala'])) {
+                                echo '<img src="../../assets/imgs/salas/' . htmlspecialchars($sala['foto_sala']) . '" alt="Imagem da Sala" class="w-32 h-32 object-cover rounded mb-2 mt-2">';
+                            }
+                            // Imagem do professor
+                            if (!empty($sala['foto_professor'])) {
+                                echo '<img src="../../assets/imgs/professores/' . htmlspecialchars($sala['foto_professor']) . '" alt="Foto do Professor" class="w-24 h-24 object-cover rounded mb-2">';
+                            }
+                            // Nome do professor
+                            if (!empty($sala['professor'])) {
+                                echo '<span class="font-bold text-gray-700 text-md mb-1">' . htmlspecialchars($sala['professor']) . '</span>';
+                            }
+                            // Descrição do professor
+                            if (!empty($sala['descricao_professor'])) {
+                                echo '<span class="text-gray-500 text-sm mb-2">' . htmlspecialchars($sala['descricao_professor']) . '</span>';
+                            }
+                            break;
+                        }
+                    }
+                    ?>
+                </div>
             </div>
 
             <div class="flex gap-2 mb-6">
@@ -145,10 +186,19 @@ if ($salaSelecionada) {
                                     <tbody>
                                         <?php foreach ($materiais as $arquivo): ?>
                                             <tr class="border-b">
-                                                <td class="px-6 py-4"><?php echo htmlspecialchars($arquivo); ?></td>
+                                                <td class="px-6 py-4">
+                                                    <a href="<?php echo "../../assets/arquivos/" . rawurlencode($nomeSalaSelecionada) . "/materiais/" . urlencode($arquivo); ?>" 
+                                                       download 
+                                                       class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex items-center gap-2">
+                                                        <i class="fa fa-download"></i> <?php echo htmlspecialchars($arquivo); ?>
+                                                    </a>
+                                                </td>
                                                 <td class="px-6 py-4 flex gap-2">
-                                                    <a href="<?php echo "../../assets/arquivos/" . rawurlencode($nomeSalaSelecionada) . "/materiais/" . urlencode($arquivo); ?>" target="_blank" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Ver</a>
-                                                    <a href="./Material/deleteMaterial.php?php echo urlencode($nomeSalaSelecionada); ?>&arquivo=<?php echo urlencode($arquivo); ?>" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Excluir</a>
+                                                    <a href="javascript:void(0);" 
+                                                       onclick="abrirModalExcluir('material', null, '<?php echo urlencode($nomeSalaSelecionada); ?>', '<?php echo urlencode($arquivo); ?>');" 
+                                                       class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                                                        <i class="fa fa-trash"></i>
+                                                    </a>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -205,15 +255,14 @@ if ($salaSelecionada) {
                         echo '</thead>';
                         echo '<tbody>';
                         while ($link = $resultado->fetch_assoc()) {
-                            $data_formatada = date('d/m/Y H:i', strtotime($link['data']));
+                            $data_formatada = date('d/m/Y', strtotime($link['data']));
                             echo '<tr class="border-b">';
                             echo '<td class="px-4 py-4">' . htmlspecialchars($link['nome']) . '</td>';
                             echo '<td class="px-6 py-4"><a href="' . htmlspecialchars($link['url']) . '" target="_blank" class="text-blue-600 underline">' . htmlspecialchars($link['url']) . '</a></td>';
                             echo '<td class="px-6 py-4">' . $data_formatada . '</td>';
                             echo '<td class="px-6 py-4 flex gap-2">';
                             echo '<a href="./Links/editLink.php?id=' . $link['id'] . '&sala=' . $salaSelecionada . '" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"><i class="fa fa-edit"></i></a>';
-                            echo '<a href="./Links/deleteLink.php?id=' . $link['id'] . '&sala=' . $salaSelecionada . '" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600" onclick="return confirm(\'Tem certeza que deseja excluir este link?\')"><i class="fa fa-trash"></i></a>';
-                            echo '</td>';
+                            echo '<a href="javascript:void(0);" onclick="abrirModalExcluir(\'link\', ' . $link['id'] . ', ' . $salaSelecionada . ');" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"><i class="fa fa-trash"></i></a>';                            echo '</td>';
                             echo '</tr>';
                         }
                         echo '</tbody>';
@@ -270,7 +319,7 @@ if ($salaSelecionada) {
                                 <li class="flex justify-between items-center">
                                     <span>
                                         <?php echo htmlspecialchars($aviso['descricao']); ?>
-                                        <span class="text-xs text-gray-400 ml-2">(<?php echo date('d/m/Y H:i', strtotime($aviso['data'])); ?>)</span>
+                                        <span class="text-xs text-gray-400 ml-2">(<?php echo date('d/m/Y', strtotime($aviso['data'])); ?>)</span>
                                     </span>
                                     <span>
                                         <a href="./avisos/editAviso.php?id=<?php echo $aviso['id']; ?>" class="text-blue-500 hover:underline mr-2"><i class="fa fa-edit"></i></a>
@@ -285,55 +334,166 @@ if ($salaSelecionada) {
                 </div>
             </div>
         </div>
+
+        <!-- Conteúdo de adição de sala -->
+        <div id="addSalaContent" class="hidden">
+            <div class="flex justify-between items-center border-b pb-4 mb-6">
+                <h2 class="text-2xl font-bold">Adicionar Nova Sala</h2>
+            </div>
+            <div class="flex justify-center items-start">
+                <form class="bg-white p-8 rounded shadow-md w-full max-w-2xl flex gap-8" method="POST" action="./sala/addSala.php" enctype="multipart/form-data">
+                    <div class="flex-1">
+                        <h2 class="text-xl font-bold mb-4">Nova Sala</h2>
+                        <div class="mb-4">
+                            <label class="block mb-1 font-semibold">Título da Sala</label>
+                            <input type="text" name="nome" class="w-full border px-3 py-2 rounded" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-1 font-semibold">Descrição</label>
+                            <textarea name="descricao_sala" class="w-full border px-3 py-2 rounded" rows="4" required></textarea>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold mb-2">Professor Responsável</h3>
+                        <div class="mb-4">
+                            <label class="block mb-1 font-semibold">Foto</label>
+                            <input type="file" name="foto_professor" class="w-full border px-3 py-2 rounded">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-1 font-semibold">Nome</label>
+                            <input type="text" name="professor" class="w-full border px-3 py-2 rounded">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-1 font-semibold">Descrição breve</label>
+                            <textarea name="descricao_professor" class="w-full border px-3 py-2 rounded" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Salvar Sala</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Conteúdo de edição de sala -->
+        <div id="editSalaContent" class="hidden">
+            <div class="flex justify-between items-center border-b pb-4 mb-6">
+                <h2 class="text-2xl font-bold">Editar Sala</h2>
+            </div>
+            <div class="flex justify-center items-start">
+                <?php
+                // Só exibe se houver sala selecionada para edição
+                if (isset($_GET['editSala']) && $_GET['editSala']) {
+                    $id = intval($_GET['editSala']);
+                    $sql = "SELECT * FROM sala WHERE id = ?";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param('i', $id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $sala = $result->fetch_assoc();
+                ?>
+                <form class="bg-white p-8 rounded shadow-md w-full max-w-2xl flex gap-8" method="POST" action="./sala/editSala.php" enctype="multipart/form-data">
+                    <input type="hidden" name="id" value="<?php echo $sala['id']; ?>">
+                    <div class="flex-1">
+                        <h2 class="text-xl font-bold mb-4">Editar Sala</h2>
+                        <div class="mb-4">
+                            <label class="block mb-1 font-semibold">Título da Sala</label>
+                            <input type="text" name="nome" class="w-full border px-3 py-2 rounded" value="<?php echo htmlspecialchars($sala['nome']); ?>" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-1 font-semibold">Descrição</label>
+                            <textarea name="descricao_sala" class="w-full border px-3 py-2 rounded" rows="4" required><?php echo htmlspecialchars($sala['descricao_sala']); ?></textarea>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold mb-2">Professor Responsável</h3>
+                        <div class="mb-4">
+                            <label class="block mb-1 font-semibold">Foto</label>
+                            <?php if (!empty($sala['foto_professor'])): ?>
+                                <img src="../../../assets/imgs/professores/<?php echo htmlspecialchars($sala['foto_professor']); ?>" alt="Foto Professor" class="w-24 h-24 object-cover rounded mb-2">
+                            <?php endif; ?>
+                            <input type="file" name="foto_professor" class="w-full border px-3 py-2 rounded">
+                            <input type="hidden" name="foto_professor_atual" value="<?php echo htmlspecialchars($sala['foto_professor']); ?>">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-1 font-semibold">Nome</label>
+                            <input type="text" name="professor" class="w-full border px-3 py-2 rounded" value="<?php echo htmlspecialchars($sala['professor']); ?>">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-1 font-semibold">Descrição breve</label>
+                            <textarea name="descricao_professor" class="w-full border px-3 py-2 rounded" rows="2"><?php echo htmlspecialchars($sala['descricao_professor']); ?></textarea>
+                        </div>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Salvar Alterações</button>
+                    </div>
+                </form>
+                <?php } ?>
+            </div>
+        </div>
     </main>
 </div>
 
-<!-- Modal Adicionar Material -->
-<div id="modalAddMaterial" class="fixed inset-0 bg-black bg-opacity-100 flex items-center justify-center z-50 hidden">
-  <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
-    <form class="p-6" action="./Material/addMaterial.php" method="POST" enctype="multipart/form-data">
-      <div class="flex justify-between items-center mb-4">
-        <h5 class="text-xl font-bold">Adicionar Material</h5>
-        <button type="button" class="text-gray-500 hover:text-gray-700" onclick="closeModal('modalAddMaterial')">&times;</button>
-      </div>
-      <div class="mb-4">
-        <label for="material_nome" class="block mb-1 font-semibold">Nome do Material</label>
-        <input type="text" class="w-full border px-3 py-2 rounded" id="material_nome" name="nome" required>
-      </div>
-      <div class="mb-4">
-        <label for="material_arquivo" class="block mb-1 font-semibold">Arquivo</label>
-        <input type="file" class="w-full border px-3 py-2 rounded" id="material_arquivo" name="arquivo" required>
-      </div>
-      <input type="hidden" name="id_sala" value="<?php echo htmlspecialchars($salaSelecionada); ?>">
-      <div class="flex justify-end">
-        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Salvar</button>
-      </div>
-    </form>
-  </div>
+<!-- Modal Adicionar Material (padrão do modal de adicionar transação) -->
+<div id="modalAddMaterial" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h5 class="text-xl font-bold text-cinza-fatec">Adicionar Material</h5>
+            <button type="button" class="text-gray-500 hover:text-gray-700 text-2xl font-bold" onclick="closeModal('modalAddMaterial')">&times;</button>
+        </div>
+        <form action="./Material/addMaterial.php" method="POST" enctype="multipart/form-data">
+            <div class="mb-4">
+                <label for="material_nome" class="block mb-1 font-semibold">Nome do Material</label>
+                <input type="text" class="w-full border px-3 py-2 rounded" id="material_nome" name="nome" required>
+            </div>
+            <div class="mb-4">
+                <label for="material_arquivo" class="block mb-1 font-semibold">Arquivo</label>
+                <input type="file" class="w-full border px-3 py-2 rounded" id="material_arquivo" name="arquivo" required>
+            </div>
+            <input type="hidden" name="id_sala" value="<?php echo htmlspecialchars($salaSelecionada); ?>">
+            <div class="flex justify-end gap-2 mt-6">
+                <button type="button" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 font-semibold" onclick="closeModal('modalAddMaterial')">Cancelar</button>
+                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 font-semibold">Salvar</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<!-- Modal Adicionar Link -->
+<!-- Modal Adicionar Link (padrão do modal de adicionar transação) -->
 <div id="modalAddLink" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-  <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
-    <form class="p-6" action="./Links/addLink.php" method="POST">
-      <div class="flex justify-between items-center mb-4">
-        <h5 class="text-xl font-bold">Adicionar Link</h5>
-        <button type="button" class="text-gray-500 hover:text-gray-700" onclick="closeModal('modalAddLink')">&times;</button>
-      </div>
-      <div class="mb-4">
-        <label for="link_nome" class="block mb-1 font-semibold">Nome do Link</label>
-        <input type="text" class="w-full border px-3 py-2 rounded" id="link_nome" name="nome" required>
-      </div>
-      <div class="mb-4">
-        <label for="link_url" class="block mb-1 font-semibold">URL</label>
-        <input type="url" class="w-full border px-3 py-2 rounded" id="link_url" name="url" required>
-      </div>
-      <input type="hidden" name="id_sala" value="<?php echo htmlspecialchars($salaSelecionada); ?>">
-      <div class="flex justify-end">
-        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Salvar</button>
-      </div>
-    </form>
-  </div>
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h5 class="text-xl font-bold text-cinza-fatec">Adicionar Link</h5>
+            <button type="button" class="text-gray-500 hover:text-gray-700 text-2xl font-bold" onclick="closeModal('modalAddLink')">&times;</button>
+        </div>
+        <form action="./Links/addLink.php" method="POST">
+            <div class="mb-4">
+                <label for="link_nome" class="block mb-1 font-semibold">Nome do Link</label>
+                <input type="text" class="w-full border px-3 py-2 rounded" id="link_nome" name="nome" required>
+            </div>
+            <div class="mb-4">
+                <label for="link_url" class="block mb-1 font-semibold">URL</label>
+                <input type="url" class="w-full border px-3 py-2 rounded" id="link_url" name="url" required>
+            </div>
+            <input type="hidden" name="id_sala" value="<?php echo htmlspecialchars($salaSelecionada); ?>">
+            <div class="flex justify-end gap-2 mt-6">
+                <button type="button" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 font-semibold" onclick="closeModal('modalAddLink')">Cancelar</button>
+                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 font-semibold">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de confirmação de exclusão (padrão do dashboard.php) -->
+<div id="modalConfirmarExclusao" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-sm p-6 text-center">
+        <h3 class="text-xl font-bold mb-4 text-red-600">Confirmar Exclusão</h3>
+        <p class="mb-6 text-gray-700" id="textoConfirmacaoExclusao">Tem certeza que deseja excluir este item?</p>
+        <div class="flex justify-center gap-4">
+            <button id="btnConfirmarExclusao" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 font-semibold">Excluir</button>
+            <button id="btnCancelarExclusao" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 font-semibold">Cancelar</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -383,6 +543,14 @@ document.getElementById('btnAvisos').addEventListener('click', function() {
     document.getElementById('mensagemInicial').classList.add('hidden');
 });
 
+// Avisos: mostrar conteúdo das salas ao clicar
+document.getElementById('AddSala').addEventListener('click', function() {
+    document.getElementById('salaTabs').classList.add('hidden');
+    document.getElementById('avisosContent').classList.add('hidden');
+    document.getElementById('mensagemInicial').classList.add('hidden');
+    document.getElementById('addSalaContent').classList.remove('hidden');
+});
+
 // Modal funções
 function openModal(id) {
     document.getElementById(id).classList.remove('hidden');
@@ -401,6 +569,41 @@ document.querySelectorAll('[data-modal-target]').forEach(btn => {
         if(modal) modal.classList.remove('hidden');
     });
 });
+
+// Redirecionar para a aba de edição se editSala estiver na URL
+if (window.location.search.includes('editSala=')) {
+    document.getElementById('salaTabs').classList.add('hidden');
+    document.getElementById('avisosContent').classList.add('hidden');
+    document.getElementById('mensagemInicial').classList.add('hidden');
+    document.getElementById('addSalaContent').classList.add('hidden');
+    document.getElementById('editSalaContent').classList.remove('hidden');
+}
+
+// Função para abrir o modal de exclusão para sala, link ou material
+function abrirModalExcluir(tipo, id, salaId = null, arquivo = null) {
+    let texto = "Tem certeza que deseja excluir este item?";
+    let url = "#";
+    if (tipo === 'sala') {
+        texto = "Tem certeza que deseja excluir esta sala?";
+        url = `./sala/deleteSala.php?id=${id}`;
+    } else if (tipo === 'link') {
+        texto = "Tem certeza que deseja excluir este link?";
+        url = `./Links/deleteLink.php?id=${id}&sala=${salaId}`;
+    } else if (tipo === 'material') {
+        texto = "Tem certeza que deseja excluir este material?";
+        url = `./Material/deleteMaterial.php?sala=${salaId}&arquivo=${encodeURIComponent(arquivo)}`;
+    }
+    document.getElementById('textoConfirmacaoExclusao').textContent = texto;
+    document.getElementById('btnConfirmarExclusao').onclick = function() {
+        window.location.href = url;
+    };
+    document.getElementById('modalConfirmarExclusao').classList.remove('hidden');
+}
+
+// Botão cancelar fecha o modal
+document.getElementById('btnCancelarExclusao').onclick = function() {
+    document.getElementById('modalConfirmarExclusao').classList.add('hidden');
+};
 </script>
 
     <script>//Fechar modais clicando fora da caixa
