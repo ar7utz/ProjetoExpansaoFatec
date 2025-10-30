@@ -77,9 +77,7 @@
             SELECIONE SUA ÁREA DE INTERESSE
         </h2>
 
-        <!-- Colocar a lógica dinâmica das salas -->
         <?php
-        // ...código anterior...
         $sqlSalas = "SELECT * FROM sala";
         $resultSalas = $conn->query($sqlSalas);
         ?>
@@ -99,7 +97,6 @@
             <?php endwhile; ?>
         </div>
 
-        <!-- Avisos Recentes //  bloco while bd -->
         <div class="bg-gray-100 rounded-lg p-8 shadow">
             <h3 class="text-2xl font-bold text-vermLetra-fatec mb-6">AVISOS RECENTES</h3>
             <ul class="space-y-3">
@@ -111,7 +108,7 @@
                         <?php while ($aviso = $resultAvisos->fetch_assoc()): ?>
                             <li class="flex justify-between items-center">
                                 <span>
-                                    <span class="text-xs text-gray-400 ml-2">(<?php echo date('d/m/Y H:i', strtotime($aviso['data'])); ?>)</span>
+                                    <span class="text-xs text-gray-400 ml-2">(<?php echo date('d/m/Y', strtotime($aviso['data'])); ?>)</span>
                                     <?php echo htmlspecialchars($aviso['descricao']); ?>
                                 </span>
                                 <span>

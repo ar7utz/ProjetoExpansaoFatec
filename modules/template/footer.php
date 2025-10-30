@@ -7,7 +7,7 @@
         <?php
             $ehIndex = basename($_SERVER['SCRIPT_NAME']) === 'index.php';
             if($ehIndex == true){
-                echo '<a id="admin" href="./modules/admin/pageLoginADM.php">ADMIN</a>';
+                echo '<a id="admin" target="blank" href="./modules/admin/pageLoginADM.php">ADMIN</a>';
             };
         ?>
     </div>

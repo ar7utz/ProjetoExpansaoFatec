@@ -42,20 +42,120 @@ while ($row = $resultSalas->fetch_assoc()) {
     $salas[] = $row;
 }
 
-$salaSelecionada = isset($_GET['sala']) ? $_GET['sala'] : null;
+
+// Determina a sala selecionada (aceita id numérico ou nome com espaços)
+// resultado: $salaSelecionada (id) e $nomeSalaSelecionada (nome)
+$salaSelecionada = null;
+$nomeSalaSelecionada = '';
+
+if (isset($_GET['sala']) && $_GET['sala'] !== '') {
+    $salaParam = $_GET['sala'];
+
+    if (ctype_digit(strval($salaParam))) {
+        // recebeu ID
+        $salaSelecionada = intval($salaParam);
+    } else {
+        // recebeu NOME da sala -> buscar ID
+        $stmt = $conn->prepare("SELECT id, nome FROM sala WHERE nome = ?");
+        $stmt->bind_param('s', $salaParam);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($row = $res->fetch_assoc()) {
+            $salaSelecionada = intval($row['id']);
+            $nomeSalaSelecionada = $row['nome'];
+        }
+        $stmt->close();
+    }
+
+    // se temos apenas ID, buscar nome
+    if ($salaSelecionada && $nomeSalaSelecionada === '') {
+        $stmt2 = $conn->prepare("SELECT nome FROM sala WHERE id = ?");
+        $stmt2->bind_param('i', $salaSelecionada);
+        $stmt2->execute();
+        $res2 = $stmt2->get_result();
+        if ($r = $res2->fetch_assoc()) {
+            $nomeSalaSelecionada = $r['nome'];
+        }
+        $stmt2->close();
+    }
+}
+
+// Carregar materiais e links dinamicamente para a sala selecionada
 $materiais = [];
 $links = [];
-$nomeSalaSelecionada = '';
-if ($salaSelecionada) {
-    // Busca nome da sala
-    foreach ($salas as $sala) {
-        if ($sala['id'] == $salaSelecionada) {
-            $nomeSalaSelecionada = $sala['nome'];
-            break;
-        }
-    }
-    $materiais = listarMateriais($nomeSalaSelecionada);
-    $links = listarLinks($conn, $salaSelecionada);
+$totalPaginasMat = 1;
+$totalPaginasLinks = 1;
+
+$id_sala = null;
+// se paginaAdmin já definiu $salaSelecionada como id ou nome, ajusta aqui
+if (isset($salaSelecionada) && $salaSelecionada) {
+    $id_sala = intval($salaSelecionada);
+} elseif (!empty($nomeSalaSelecionada)) {
+    $stmtTemp = $conn->prepare("SELECT id FROM sala WHERE nome = ?");
+    $stmtTemp->bind_param('s', $nomeSalaSelecionada);
+    $stmtTemp->execute();
+    $resTemp = $stmtTemp->get_result();
+    $rowTemp = $resTemp->fetch_assoc();
+    if ($rowTemp) $id_sala = intval($rowTemp['id']);
+    $stmtTemp->close();
+}
+
+// Caso só tenha id, busca o nome (útil para links/path)
+if ($id_sala && empty($nomeSalaSelecionada)) {
+    $stmtN = $conn->prepare("SELECT nome FROM sala WHERE id = ?");
+    $stmtN->bind_param('i', $id_sala);
+    $stmtN->execute();
+    $resN = $stmtN->get_result();
+    if ($r = $resN->fetch_assoc()) $nomeSalaSelecionada = $r['nome'];
+    $stmtN->close();
+}
+
+// Materiais - paginação e carregamento
+$itensPorPaginaMat = 10;
+$paginaAtualMat = isset($_GET['pagina_materiais']) ? max(1, intval($_GET['pagina_materiais'])) : 1;
+$offsetMat = ($paginaAtualMat - 1) * $itensPorPaginaMat;
+
+if ($id_sala) {
+    $sqlTotalMat = "SELECT COUNT(*) as total FROM materiais WHERE id_sala = ?";
+    $stmtTotalMat = $conn->prepare($sqlTotalMat);
+    $stmtTotalMat->bind_param('i', $id_sala);
+    $stmtTotalMat->execute();
+    $resultTotalMat = $stmtTotalMat->get_result();
+    $totalMateriais = $resultTotalMat->fetch_assoc()['total'] ?? 0;
+    $totalPaginasMat = $totalMateriais > 0 ? ceil($totalMateriais / $itensPorPaginaMat) : 1;
+    $stmtTotalMat->close();
+
+    $sqlMat = "SELECT * FROM materiais WHERE id_sala = ? ORDER BY data DESC LIMIT ? OFFSET ?";
+    $stmtMat = $conn->prepare($sqlMat);
+    $stmtMat->bind_param('iii', $id_sala, $itensPorPaginaMat, $offsetMat);
+    $stmtMat->execute();
+    $resMat = $stmtMat->get_result();
+    while ($row = $resMat->fetch_assoc()) $materiais[] = $row;
+    $stmtMat->close();
+}
+
+// Links - paginação e carregamento
+$itensPorPaginaLinks = 10;
+$paginaAtualLinks = isset($_GET['pagina_links']) ? max(1, intval($_GET['pagina_links'])) : 1;
+$offsetLinks = ($paginaAtualLinks - 1) * $itensPorPaginaLinks;
+
+if ($id_sala) {
+    $sqlTotalLinks = "SELECT COUNT(*) as total FROM links WHERE id_sala = ?";
+    $stmtTotalLinks = $conn->prepare($sqlTotalLinks);
+    $stmtTotalLinks->bind_param('i', $id_sala);
+    $stmtTotalLinks->execute();
+    $resultTotalLinks = $stmtTotalLinks->get_result();
+    $totalLinks = $resultTotalLinks->fetch_assoc()['total'] ?? 0;
+    $totalPaginasLinks = $totalLinks > 0 ? ceil($totalLinks / $itensPorPaginaLinks) : 1;
+    $stmtTotalLinks->close();
+
+    $sqlLinks = "SELECT * FROM links WHERE id_sala = ? ORDER BY data DESC LIMIT ? OFFSET ?";
+    $stmtLinks = $conn->prepare($sqlLinks);
+    $stmtLinks->bind_param('iii', $id_sala, $itensPorPaginaLinks, $offsetLinks);
+    $stmtLinks->execute();
+    $resLinks = $stmtLinks->get_result();
+    while ($row = $resLinks->fetch_assoc()) $links[] = $row;
+    $stmtLinks->close();
 }
 ?>
 
@@ -135,12 +235,12 @@ if ($salaSelecionada) {
                     foreach ($salas as $sala) {
                         if ($sala['id'] == $salaSelecionada) {
                             // Imagem da sala
-                            if (!empty($sala['foto_sala'])) {
-                                echo '<img src="../../assets/imgs/salas/' . htmlspecialchars($sala['foto_sala']) . '" alt="Imagem da Sala" class="w-32 h-32 object-cover rounded mb-2 mt-2">';
+                            if (!empty($sala['img_sala'])) {
+                                echo '<img src="../../assets/imgs/salas/' . htmlspecialchars($sala['img_sala']) . '" alt="Imagem da Sala" class="w-32 h-32 object-cover rounded mb-2 mt-2">';
                             }
                             // Imagem do professor
                             if (!empty($sala['foto_professor'])) {
-                                echo '<img src="../../assets/imgs/professores/' . htmlspecialchars($sala['foto_professor']) . '" alt="Foto do Professor" class="w-24 h-24 object-cover rounded mb-2">';
+                                echo '<img src="../../assets/imgs/professores/' . htmlspecialchars($sala['foto_professor']) . '" alt="Foto do Professor" class="w-20 h-20 object-cover rounded mb-2">';
                             }
                             // Nome do professor
                             if (!empty($sala['professor'])) {
@@ -166,9 +266,12 @@ if ($salaSelecionada) {
             <div id="tabContentMateriais" class="tab-content">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-bold">Materiais</h3>
-                    <button type="button" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onclick="openModal('modalAddMaterial')">
-                        <i class="fa fa-plus"></i> Importar Material
-                    </button>
+                    <a href="#" onclick="openModal('modalAddMaterial')">
+                        <button type="button" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" >
+                            <i class="fa fa-plus"></i> Importar Material
+                        </button>
+                    </a>
+
                 </div>
                 <div class="bg-white rounded shadow mb-8">
                     <div class="overflow-x-auto">
@@ -184,24 +287,25 @@ if ($salaSelecionada) {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($materiais as $arquivo): ?>
-                                            <tr class="border-b">
-                                                <td class="px-6 py-4">
-                                                    <a href="<?php echo "../../assets/arquivos/" . rawurlencode($nomeSalaSelecionada) . "/materiais/" . urlencode($arquivo); ?>" 
-                                                       download 
-                                                       class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex items-center gap-2">
-                                                        <i class="fa fa-download"></i> <?php echo htmlspecialchars($arquivo); ?>
-                                                    </a>
-                                                </td>
-                                                <td class="px-6 py-4 flex gap-2">
-                                                    <a href="javascript:void(0);" 
-                                                       onclick="abrirModalExcluir('material', null, '<?php echo urlencode($nomeSalaSelecionada); ?>', '<?php echo urlencode($arquivo); ?>');" 
-                                                       class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
-                                                        <i class="fa fa-trash"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                        <?php foreach ($materiais as $mat): ?>
+                                        <?php $arquivoNome = $mat['arquivo'] ?? ''; ?>
+                                        <tr class="border-b">
+                                            <td class="px-6 py-4">
+                                                <a href="<?php echo "../../assets/arquivos/" . rawurlencode($nomeSalaSelecionada) . "/materiais/" . rawurlencode($arquivoNome); ?>" 
+                                                   download 
+                                                   class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex items-center gap-2">
+                                                    <i class="fa fa-download"></i> <?php echo htmlspecialchars($arquivoNome); ?>
+                                                </a>
+                                            </td>
+                                            <td class="px-6 py-4 flex gap-2">
+                                                <a href="#" 
+                                                   onclick="abrirModalExcluir('material', null, '<?php echo rawurlencode($nomeSalaSelecionada); ?>', '<?php echo rawurlencode($arquivoNome); ?>');" 
+                                                   class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                                                    <i class="fa fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
                                     </tbody>
                                 </table>
                             <?php endif; ?>
@@ -211,7 +315,7 @@ if ($salaSelecionada) {
                     </div>
                 </div>
             </div>
-                        
+
             <!-- Links -->
             <div id="tabContentLinks" class="tab-content hidden">
                 <div class="flex justify-between items-center mb-4">
@@ -377,59 +481,79 @@ if ($salaSelecionada) {
 
         <!-- Conteúdo de edição de sala -->
         <div id="editSalaContent" class="hidden">
-            <div class="flex justify-between items-center border-b pb-4 mb-6">
-                <h2 class="text-2xl font-bold">Editar Sala</h2>
-            </div>
-            <div class="flex justify-center items-start">
-                <?php
-                // Só exibe se houver sala selecionada para edição
-                if (isset($_GET['editSala']) && $_GET['editSala']) {
-                    $id = intval($_GET['editSala']);
-                    $sql = "SELECT * FROM sala WHERE id = ?";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param('i', $id);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    $sala = $result->fetch_assoc();
-                ?>
-                <form class="bg-white p-8 rounded shadow-md w-full max-w-2xl flex gap-8" method="POST" action="./sala/editSala.php" enctype="multipart/form-data">
-                    <input type="hidden" name="id" value="<?php echo $sala['id']; ?>">
-                    <div class="flex-1">
-                        <h2 class="text-xl font-bold mb-4">Editar Sala</h2>
+            <?php
+            // Só exibe se houver sala selecionada para edição
+            if (isset($_GET['editSala']) && $_GET['editSala']) {
+                $id = intval($_GET['editSala']);
+                $sql = "SELECT * FROM sala WHERE id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $sala = $result->fetch_assoc();
+            ?>
+            <form method="POST" action="./sala/editSala.php" enctype="multipart/form-data" class="bg-white rounded shadow p-6">
+                <input type="hidden" name="id" value="<?php echo $sala['id']; ?>">
+                <div class="flex flex-row w-full mb-6">
+                    <!-- Esquerda: título, descrição e imagem da sala (70%) -->
+                    <div class="flex-[7] pr-8">
+                        <h2 class="text-2xl font-bold mb-4">Editar Sala: <?php echo htmlspecialchars($sala['nome']); ?></h2>
+
                         <div class="mb-4">
                             <label class="block mb-1 font-semibold">Título da Sala</label>
                             <input type="text" name="nome" class="w-full border px-3 py-2 rounded" value="<?php echo htmlspecialchars($sala['nome']); ?>" required>
                         </div>
+
                         <div class="mb-4">
                             <label class="block mb-1 font-semibold">Descrição</label>
-                            <textarea name="descricao_sala" class="w-full border px-3 py-2 rounded" rows="4" required><?php echo htmlspecialchars($sala['descricao_sala']); ?></textarea>
+                            <textarea name="descricao_sala" class="w-full border px-3 py-2 rounded" rows="6" required><?php echo htmlspecialchars($sala['descricao_sala']); ?></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block mb-1 font-semibold">Imagem da Sala</label>
+                            <?php
+                                $imgSalaPath = "../../assets/imgs/salas/" . ($sala['img_sala'] ?: '');
+                                $defaultSala = "../../assets/imgs/salas/sala_default.png";
+                                $exibirSala = (!empty($sala['img_sala']) && file_exists(__DIR__ . "/../../assets/imgs/salas/" . $sala['img_sala'])) ? $imgSalaPath : $defaultSala;
+                            ?>
+                            <img src="<?php echo $exibirSala; ?>" alt="Imagem da Sala" class="w-full max-w-md h-48 object-cover rounded mb-2">
+                            <input type="file" name="img_sala" class="w-full border px-3 py-2 rounded">
+                            <input type="hidden" name="img_sala_atual" value="<?php echo htmlspecialchars($sala['img_sala']); ?>">
                         </div>
                     </div>
-                    <div class="flex-1">
-                        <h3 class="text-lg font-semibold mb-2">Professor Responsável</h3>
-                        <div class="mb-4">
-                            <label class="block mb-1 font-semibold">Foto</label>
-                            <?php if (!empty($sala['foto_professor'])): ?>
-                                <img src="../../../assets/imgs/professores/<?php echo htmlspecialchars($sala['foto_professor']); ?>" alt="Foto Professor" class="w-24 h-24 object-cover rounded mb-2">
-                            <?php endif; ?>
-                            <input type="file" name="foto_professor" class="w-full border px-3 py-2 rounded">
+
+                    <!-- Direita: professor (30%) -->
+                    <div class="flex-[3] flex flex-col items-center justify-start">
+                        <h3 class="text-lg font-semibold mb-4">Professor Responsável</h3>
+
+                        <div class="mb-4 w-full flex flex-col items-center">
+                            <?php
+                                $imgProfPath = "../../assets/imgs/professores/" . ($sala['foto_professor'] ?: '');
+                                $defaultProf = "../../assets/imgs/professores/user_default.png";
+                                $exibirProf = (!empty($sala['foto_professor']) && file_exists(__DIR__ . "/../../assets/imgs/professores/" . $sala['foto_professor'])) ? $imgProfPath : $defaultProf;
+                            ?>
+                            <img src="<?php echo $exibirProf; ?>" alt="Foto do Professor" class="w-40 h-40 object-cover rounded mb-2">
+                            <input type="file" name="foto_professor" class="w-full border px-3 py-2 rounded mb-3">
                             <input type="hidden" name="foto_professor_atual" value="<?php echo htmlspecialchars($sala['foto_professor']); ?>">
                         </div>
-                        <div class="mb-4">
+
+                        <div class="mb-4 w-full">
                             <label class="block mb-1 font-semibold">Nome</label>
                             <input type="text" name="professor" class="w-full border px-3 py-2 rounded" value="<?php echo htmlspecialchars($sala['professor']); ?>">
                         </div>
-                        <div class="mb-4">
+
+                        <div class="mb-4 w-full">
                             <label class="block mb-1 font-semibold">Descrição breve</label>
-                            <textarea name="descricao_professor" class="w-full border px-3 py-2 rounded" rows="2"><?php echo htmlspecialchars($sala['descricao_professor']); ?></textarea>
+                            <textarea name="descricao_professor" class="w-full border px-3 py-2 rounded" rows="4"><?php echo htmlspecialchars($sala['descricao_professor']); ?></textarea>
+                        </div>
+
+                        <div class="w-full flex justify-end">
+                            <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Salvar Alterações</button>
                         </div>
                     </div>
-                    <div class="flex items-end">
-                        <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Salvar Alterações</button>
-                    </div>
-                </form>
-                <?php } ?>
-            </div>
+                </div>
+            </form>
+            <?php } ?>
         </div>
     </main>
 </div>
@@ -579,67 +703,73 @@ if (window.location.search.includes('editSala=')) {
     document.getElementById('editSalaContent').classList.remove('hidden');
 }
 
-// Função para abrir o modal de exclusão para sala, link ou material
-function abrirModalExcluir(tipo, id, salaId = null, arquivo = null) {
-    let texto = "Tem certeza que deseja excluir este item?";
-    let url = "#";
-    if (tipo === 'sala') {
-        texto = "Tem certeza que deseja excluir esta sala?";
-        url = `./sala/deleteSala.php?id=${id}`;
-    } else if (tipo === 'link') {
-        texto = "Tem certeza que deseja excluir este link?";
-        url = `./Links/deleteLink.php?id=${id}&sala=${salaId}`;
-    } else if (tipo === 'material') {
-        texto = "Tem certeza que deseja excluir este material?";
-        url = `./Material/deleteMaterial.php?sala=${salaId}&arquivo=${encodeURIComponent(arquivo)}`;
-    }
-    document.getElementById('textoConfirmacaoExclusao').textContent = texto;
-    document.getElementById('btnConfirmarExclusao').onclick = function() {
-        window.location.href = url;
-    };
-    document.getElementById('modalConfirmarExclusao').classList.remove('hidden');
-}
-
-// Botão cancelar fecha o modal
-document.getElementById('btnCancelarExclusao').onclick = function() {
-    document.getElementById('modalConfirmarExclusao').classList.add('hidden');
-};
 </script>
 
-    <script>//Fechar modais clicando fora da caixa
-        window.addEventListener('click', function(event) {
-            const modais = ['AddTransacaoModal', 'modalEditarTransacao', 'modalConfirmarExclusao'];
-            modais.forEach(function(modalId) {
-                const modal = document.getElementById(modalId);
-                if (event.target === modal) {
-                    modal.classList.add('hidden');
-                }
-            });
-        });
-    </script>
+<script>
+(function(){
+    const modal = document.getElementById('modalConfirmarExclusao');
+    const texto = document.getElementById('textoConfirmacaoExclusao');
+    const btnConfirm = document.getElementById('btnConfirmarExclusao');
+    const btnCancel = document.getElementById('btnCancelarExclusao');
 
-        <script> //Funções para abrir e fechar o modal de adicionar transação
-        document.getElementById('abrirModalAddTransacao').addEventListener('click', function() {
-            document.getElementById('AddTransacaoModal').classList.remove('hidden');
-        });
+    if (!modal || !btnConfirm || !btnCancel || !texto) return;
 
-        document.getElementById('fecharModalAdd').addEventListener('click', function() {
-            document.getElementById('AddTransacaoModal').classList.add('hidden');
-        });
-    </script>
+    // Função pública para abrir o modal de exclusão
+    window.abrirModalExcluir = function(tipo, id, salaId = null, arquivo = null) {
+        let url = '#';
+        let msg = 'Tem certeza que deseja excluir este item?';
 
-    <script>//Funções para abrir e fechar o modal de confirmação de exclusão 
-        function abrirModalExcluir(id) {
-            document.getElementById('confirmarExcluirNota').onclick = function() {
-                window.location.href = `../transacoes/excluir_transacao.php?id=${id}`;
-            };
-            document.getElementById('modalConfirmarExclusao').classList.remove('hidden');
+        switch (tipo) {
+            case 'sala':
+                msg = 'Tem certeza que deseja excluir esta sala?';
+                url = `./sala/deleteSala.php?id=${encodeURIComponent(id)}`;
+                break;
+            case 'link':
+                msg = 'Tem certeza que deseja excluir este link?';
+                url = `./Links/deleteLink.php?id=${encodeURIComponent(id)}&sala=${encodeURIComponent(salaId)}`;
+                break;
+            case 'material':
+                msg = 'Tem certeza que deseja excluir este material?';
+                // envia sala (nome) e arquivo (nome do arquivo) para o handler
+                url = `./Material/deleteMaterial.php?sala=${encodeURIComponent(salaId)}&arquivo=${encodeURIComponent(arquivo)}`;
+                break;
+            case 'aviso':
+                msg = 'Tem certeza que deseja excluir este aviso?';
+                url = `./avisos/deleteAviso.php?id=${encodeURIComponent(id)}`;
+                break;
+            default:
+                msg = 'Tem certeza que deseja excluir este item?';
         }
-        //Função para cancelar a exclusão e fechar o modal
-        document.getElementById('cancelarExcluirNota').addEventListener('click', function() {
-            document.getElementById('modalConfirmarExclusao').classList.add('hidden');
-        });
-    </script>
+
+        texto.textContent = msg;
+
+        // Define ação de confirmação (substitui handler anterior)
+        btnConfirm.onclick = function() {
+            // fechar modal antes de navegar (opcional)
+            modal.classList.add('hidden');
+            window.location.href = url;
+        };
+
+        // mostra modal
+        modal.classList.remove('hidden');
+    };
+
+    // fechar ao clicar no botão cancelar
+    btnCancel.addEventListener('click', function() {
+        modal.classList.add('hidden');
+    });
+
+    // fechar ao clicar fora da caixa do modal
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) modal.classList.add('hidden');
+    });
+
+    // proteger contra funções duplicadas (se houver outras definições em cache)
+    // sobrescreve qualquer abrirModalExcluir anterior
+    window.openModal = window.openModal || function(id){ document.getElementById(id).classList.remove('hidden'); };
+    window.closeModal = window.closeModal || function(id){ document.getElementById(id).classList.add('hidden'); };
+})();
+</script>
 
 </body>
 </html>

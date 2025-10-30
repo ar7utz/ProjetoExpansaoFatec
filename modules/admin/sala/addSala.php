@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 HTML;
 
         if (!empty($foto_professor)) {
-            $conteudo .= '<img class="w-40 h-40 rounded-lg object-cover mb-2" src="../../../assets/imgs/professores/' . htmlspecialchars($foto_professor) . '" alt="Foto do professor">';
+            $conteudo .= '<img class="w-40 h-40 rounded-lg object-contain mb-2" src="../../../assets/imgs/professores/' . htmlspecialchars($foto_professor) . '" alt="Foto do professor">';
         }
 
         $conteudo .= <<<HTML
