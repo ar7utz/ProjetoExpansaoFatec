@@ -289,6 +289,7 @@ if ($id_sala) {
                                     <tbody>
                                         <?php foreach ($materiais as $mat): ?>
                                         <?php $arquivoNome = $mat['arquivo'] ?? ''; ?>
+                                        <?php $materialId = $mat['id'] ?? 0; ?>
                                         <tr class="border-b">
                                             <td class="px-6 py-4">
                                                 <a href="<?php echo "../../assets/arquivos/" . rawurlencode($nomeSalaSelecionada) . "/materiais/" . rawurlencode($arquivoNome); ?>" 
@@ -298,8 +299,9 @@ if ($id_sala) {
                                                 </a>
                                             </td>
                                             <td class="px-6 py-4 flex gap-2">
-                                                <a href="#" 
-                                                   onclick="abrirModalExcluir('material', null, '<?php echo rawurlencode($nomeSalaSelecionada); ?>', '<?php echo rawurlencode($arquivoNome); ?>');" 
+                                                <!-- passa o ID do material e o ID da sala -->
+                                                <a href="javascript:void(0);" 
+                                                   onclick="abrirModalExcluir('material', <?php echo (int)$materialId; ?>, <?php echo (int)$salaSelecionada; ?>);" 
                                                    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
                                                     <i class="fa fa-trash"></i>
                                                 </a>
@@ -440,121 +442,135 @@ if ($id_sala) {
         </div>
 
         <!-- Conteúdo de adição de sala -->
-        <div id="addSalaContent" class="hidden">
-            <div class="flex justify-between items-center border-b pb-4 mb-6">
-                <h2 class="text-2xl font-bold">Adicionar Nova Sala</h2>
-            </div>
-            <div class="flex justify-center items-start">
-                <form class="bg-white p-8 rounded shadow-md w-full max-w-2xl flex gap-8" method="POST" action="./sala/addSala.php" enctype="multipart/form-data">
-                    <div class="flex-1">
-                        <h2 class="text-xl font-bold mb-4">Nova Sala</h2>
-                        <div class="mb-4">
-                            <label class="block mb-1 font-semibold">Título da Sala</label>
-                            <input type="text" name="nome" class="w-full border px-3 py-2 rounded" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block mb-1 font-semibold">Descrição</label>
-                            <textarea name="descricao_sala" class="w-full border px-3 py-2 rounded" rows="4" required></textarea>
-                        </div>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="text-lg font-semibold mb-2">Professor Responsável</h3>
-                        <div class="mb-4">
-                            <label class="block mb-1 font-semibold">Foto</label>
-                            <input type="file" name="foto_professor" class="w-full border px-3 py-2 rounded">
-                        </div>
-                        <div class="mb-4">
-                            <label class="block mb-1 font-semibold">Nome</label>
-                            <input type="text" name="professor" class="w-full border px-3 py-2 rounded">
-                        </div>
-                        <div class="mb-4">
-                            <label class="block mb-1 font-semibold">Descrição breve</label>
-                            <textarea name="descricao_professor" class="w-full border px-3 py-2 rounded" rows="2"></textarea>
-                        </div>
-                    </div>
-                    <div class="flex items-end">
-                        <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Salvar Sala</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <div id="addSalaContent" class="hidden"></div>
 
-        <!-- Conteúdo de edição de sala -->
-        <div id="editSalaContent" class="hidden">
-            <?php
-            // Só exibe se houver sala selecionada para edição
-            if (isset($_GET['editSala']) && $_GET['editSala']) {
-                $id = intval($_GET['editSala']);
-                $sql = "SELECT * FROM sala WHERE id = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param('i', $id);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $sala = $result->fetch_assoc();
-            ?>
-            <form method="POST" action="./sala/editSala.php" enctype="multipart/form-data" class="bg-white rounded shadow p-6">
-                <input type="hidden" name="id" value="<?php echo $sala['id']; ?>">
-                <div class="flex flex-row w-full mb-6">
-                    <!-- Esquerda: título, descrição e imagem da sala (70%) -->
-                    <div class="flex-[7] pr-8">
-                        <h2 class="text-2xl font-bold mb-4">Editar Sala: <?php echo htmlspecialchars($sala['nome']); ?></h2>
+        <!-- Conteúdo de edição de sala (container único que comporta ADD e EDIT) -->
+        <div id="editSalaContent" class="hidden w-full">
+            <!-- ADD SALA: agora ocupa todo o espaço do container (mesmo estilo do edit form) -->
+            <div id="addSalaInner" class="hidden w-full">
+                <div class="bg-white rounded shadow p-6 w-full">
+                    <h2 class="text-2xl font-bold mb-4">Adicionar Nova Sala</h2>
+                    <form method="POST" action="./sala/addSala.php" enctype="multipart/form-data" class="w-full">
+                        <div class="flex flex-row w-full mb-6">
+                            <div class="flex-[7] pr-8">
+                                <div class="mb-4">
+                                    <label class="block mb-1 font-semibold">Título da Sala</label>
+                                    <input type="text" name="nome" class="w-full border px-3 py-2 rounded" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="block mb-1 font-semibold">Descrição</label>
+                                    <textarea name="descricao_sala" class="w-full border px-3 py-2 rounded" rows="6" required></textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="block mb-1 font-semibold">Imagem da Sala (opcional)</label>
+                                    <input type="file" name="img_sala" class="w-full border px-3 py-2 rounded">
+                                </div>
+                            </div>
 
-                        <div class="mb-4">
-                            <label class="block mb-1 font-semibold">Título da Sala</label>
-                            <input type="text" name="nome" class="w-full border px-3 py-2 rounded" value="<?php echo htmlspecialchars($sala['nome']); ?>" required>
+                            <div class="flex-[3] flex flex-col items-center justify-start">
+                                <h3 class="text-lg font-semibold mb-4">Professor Responsável</h3>
+
+                                <div class="mb-4 w-full flex flex-col items-center">
+                                    <label class="block mb-1 font-semibold">Foto</label>
+                                    <input type="file" name="foto_professor" class="w-full border px-3 py-2 rounded mb-3">
+                                </div>
+
+                                <div class="mb-4 w-full">
+                                    <label class="block mb-1 font-semibold">Nome</label>
+                                    <input type="text" name="professor" class="w-full border px-3 py-2 rounded">
+                                </div>
+
+                                <div class="mb-4 w-full">
+                                    <label class="block mb-1 font-semibold">Descrição breve</label>
+                                    <textarea name="descricao_professor" class="w-full border px-3 py-2 rounded" rows="4"></textarea>
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="mb-4">
-                            <label class="block mb-1 font-semibold">Descrição</label>
-                            <textarea name="descricao_sala" class="w-full border px-3 py-2 rounded" rows="6" required><?php echo htmlspecialchars($sala['descricao_sala']); ?></textarea>
+                        <div class="w-full flex justify-center">
+                            <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Salvar Sala</button>
                         </div>
-
-                        <div class="mb-4">
-                            <label class="block mb-1 font-semibold">Imagem da Sala</label>
-                            <?php
-                                $imgSalaPath = "../../assets/imgs/salas/" . ($sala['img_sala'] ?: '');
-                                $defaultSala = "../../assets/imgs/salas/sala_default.png";
-                                $exibirSala = (!empty($sala['img_sala']) && file_exists(__DIR__ . "/../../assets/imgs/salas/" . $sala['img_sala'])) ? $imgSalaPath : $defaultSala;
-                            ?>
-                            <img src="<?php echo $exibirSala; ?>" alt="Imagem da Sala" class="w-full max-w-md h-48 object-cover rounded mb-2">
-                            <input type="file" name="img_sala" class="w-full border px-3 py-2 rounded">
-                            <input type="hidden" name="img_sala_atual" value="<?php echo htmlspecialchars($sala['img_sala']); ?>">
-                        </div>
-                    </div>
-
-                    <!-- Direita: professor (30%) -->
-                    <div class="flex-[3] flex flex-col items-center justify-start">
-                        <h3 class="text-lg font-semibold mb-4">Professor Responsável</h3>
-
-                        <div class="mb-4 w-full flex flex-col items-center">
-                            <?php
-                                $imgProfPath = "../../assets/imgs/professores/" . ($sala['foto_professor'] ?: '');
-                                $defaultProf = "../../assets/imgs/professores/user_default.png";
-                                $exibirProf = (!empty($sala['foto_professor']) && file_exists(__DIR__ . "/../../assets/imgs/professores/" . $sala['foto_professor'])) ? $imgProfPath : $defaultProf;
-                            ?>
-                            <img src="<?php echo $exibirProf; ?>" alt="Foto do Professor" class="w-40 h-40 object-cover rounded mb-2">
-                            <input type="file" name="foto_professor" class="w-full border px-3 py-2 rounded mb-3">
-                            <input type="hidden" name="foto_professor_atual" value="<?php echo htmlspecialchars($sala['foto_professor']); ?>">
-                        </div>
-
-                        <div class="mb-4 w-full">
-                            <label class="block mb-1 font-semibold">Nome</label>
-                            <input type="text" name="professor" class="w-full border px-3 py-2 rounded" value="<?php echo htmlspecialchars($sala['professor']); ?>">
-                        </div>
-
-                        <div class="mb-4 w-full">
-                            <label class="block mb-1 font-semibold">Descrição breve</label>
-                            <textarea name="descricao_professor" class="w-full border px-3 py-2 rounded" rows="4"><?php echo htmlspecialchars($sala['descricao_professor']); ?></textarea>
-                        </div>
-
-                        <div class="w-full flex justify-end">
-                            <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Salvar Alterações</button>
-                        </div>
-                    </div>
+                    </form>
                 </div>
-            </form>
-            <?php } ?>
-        </div>
+            </div>
+
+            <!-- EDIT FORM WRAPPER (mantém PHP existente, agora controlável via JS) -->
+            <div id="editFormInner" class="w-full">
+            <?php
+             // Só exibe se houver sala selecionada para edição
+             if (isset($_GET['editSala']) && $_GET['editSala']) {
+                 $id = intval($_GET['editSala']);
+                 $sql = "SELECT * FROM sala WHERE id = ?";
+                 $stmt = $conn->prepare($sql);
+                 $stmt->bind_param('i', $id);
+                 $stmt->execute();
+                 $result = $stmt->get_result();
+                 $sala = $result->fetch_assoc();
+             ?>
+             <form method="POST" action="./sala/editSala.php" enctype="multipart/form-data" class="bg-white rounded shadow p-6 w-full">
+                 <input type="hidden" name="id" value="<?php echo $sala['id']; ?>">
+                 <div class="flex flex-row w-full mb-6">
+                     <!-- Esquerda: título, descrição e imagem da sala (70%) -->
+                     <div class="flex-[7] pr-8">
+                         <h2 class="text-2xl font-bold mb-4">Editar Sala: <?php echo htmlspecialchars($sala['nome']); ?></h2>
+
+                         <div class="mb-4">
+                             <label class="block mb-1 font-semibold">Título da Sala</label>
+                             <input type="text" name="nome" class="w-full border px-3 py-2 rounded" value="<?php echo htmlspecialchars($sala['nome']); ?>" required>
+                         </div>
+
+                         <div class="mb-4">
+                             <label class="block mb-1 font-semibold">Descrição</label>
+                             <textarea name="descricao_sala" class="w-full border px-3 py-2 rounded" rows="6" required><?php echo htmlspecialchars($sala['descricao_sala']); ?></textarea>
+                         </div>
+
+                         <!-- <div class="mb-4">
+                             <label class="block mb-1 font-semibold">Imagem da Sala</label>
+                             <?php
+                                 $imgSalaPath = "../../assets/imgs/salas/" . ($sala['img_sala'] ?: '');
+                                 $defaultSala = "../../assets/imgs/salas/sala_default.png";
+                                 $exibirSala = (!empty($sala['img_sala']) && file_exists(__DIR__ . "/../../assets/imgs/salas/" . $sala['img_sala'])) ? $imgSalaPath : $defaultSala;
+                             ?>
+                             <img src="<?php echo $exibirSala; ?>" alt="Imagem da Sala" class="w-full max-w-md h-48 object-cover rounded mb-2">
+                             <input type="file" name="img_sala" class="w-full border px-3 py-2 rounded">
+                             <input type="hidden" name="img_sala_atual" value="<?php echo htmlspecialchars($sala['img_sala']); ?>">
+                         </div> -->
+                     </div>
+
+                     <!-- Direita: professor (30%) -->
+                     <div class="flex-[3] flex flex-col items-center justify-start">
+                         <h3 class="text-lg font-semibold mb-4">Professor Responsável</h3>
+
+                         <div class="mb-4 w-full flex flex-col items-center">
+                             <?php
+                                 $imgProfPath = "../../assets/imgs/professores/" . ($sala['foto_professor'] ?: '');
+                                 $defaultProf = "../../assets/imgs/professores/user_default.png";
+                                 $exibirProf = (!empty($sala['foto_professor']) && file_exists(__DIR__ . "/../../assets/imgs/professores/" . $sala['foto_professor'])) ? $imgProfPath : $defaultProf;
+                             ?>
+                             <img src="<?php echo $exibirProf; ?>" alt="Foto do Professor" class="w-40 h-40 object-cover rounded mb-2">
+                             <input type="file" name="foto_professor" class="w-full border px-3 py-2 rounded mb-3">
+                             <input type="hidden" name="foto_professor_atual" value="<?php echo htmlspecialchars($sala['foto_professor']); ?>">
+                         </div>
+
+                         <div class="mb-4 w-full">
+                             <label class="block mb-1 font-semibold">Nome</label>
+                             <input type="text" name="professor" class="w-full border px-3 py-2 rounded" value="<?php echo htmlspecialchars($sala['professor']); ?>">
+                         </div>
+
+                         <div class="mb-4 w-full">
+                             <label class="block mb-1 font-semibold">Descrição breve</label>
+                             <textarea name="descricao_professor" class="w-full border px-3 py-2 rounded" rows="4"><?php echo htmlspecialchars($sala['descricao_professor']); ?></textarea>
+                         </div>
+                     </div>
+                 </div>
+                <div class="w-full flex justify-center">
+                    <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Salvar Alterações</button>
+                </div>
+             </form>
+             <?php } ?>
+            </div> <!-- fim editFormInner -->
+
+        </div> <!-- fim editSalaContent -->
+
     </main>
 </div>
 
@@ -669,10 +685,22 @@ document.getElementById('btnAvisos').addEventListener('click', function() {
 
 // Avisos: mostrar conteúdo das salas ao clicar
 document.getElementById('AddSala').addEventListener('click', function() {
+    // esconder outras áreas
     document.getElementById('salaTabs').classList.add('hidden');
     document.getElementById('avisosContent').classList.add('hidden');
     document.getElementById('mensagemInicial').classList.add('hidden');
-    document.getElementById('addSalaContent').classList.remove('hidden');
+
+    // mostrar o container que ocupa o mesmo espaço do editar
+    document.getElementById('editSalaContent').classList.remove('hidden');
+
+    // mostrar o formulário de adicionar e garantir que o edit esteja oculto
+    const addInner = document.getElementById('addSalaInner');
+    const editInner = document.getElementById('editFormInner');
+    if (addInner) addInner.classList.remove('hidden');
+    if (editInner) editInner.classList.add('hidden');
+
+    // rolar para topo do container
+    document.getElementById('editSalaContent').scrollIntoView({behavior: 'smooth'});
 });
 
 // Modal funções
@@ -730,8 +758,8 @@ if (window.location.search.includes('editSala=')) {
                 break;
             case 'material':
                 msg = 'Tem certeza que deseja excluir este material?';
-                // envia sala (nome) e arquivo (nome do arquivo) para o handler
-                url = `./Material/deleteMaterial.php?sala=${encodeURIComponent(salaId)}&arquivo=${encodeURIComponent(arquivo)}`;
+                // id e salaId já são números passados ao chamar abrirModalExcluir
+                url = `./Material/deleteMaterial.php?id=${encodeURIComponent(id)}&sala=${encodeURIComponent(salaId)}`;
                 break;
             case 'aviso':
                 msg = 'Tem certeza que deseja excluir este aviso?';

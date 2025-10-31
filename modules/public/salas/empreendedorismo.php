@@ -1,7 +1,7 @@
 <?php
 require_once('../../../assets/bd/conexao.php');
 // usa o id da sala embutido no arquivo público para buscar materiais/links
-$id_sala = 23;
+$id_sala = 24;
 
 // busca os dados completos da sala (nome, descrição, professor, fotos)
 $stmtSala = $conn->prepare("SELECT nome, descricao_sala, professor, descricao_professor, foto_professor, img_sala FROM sala WHERE id = ?");
