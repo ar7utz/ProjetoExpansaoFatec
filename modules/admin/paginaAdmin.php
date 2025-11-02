@@ -209,8 +209,20 @@ if ($id_sala) {
         <div class="flex justify-between items-center border-b pb-4 mb-6">
             <h2 class="text-2xl font-bold">Painel de Gerenciamento</h2>
             <div class="flex items-center space-x-2">
-                <img src="https://i0.wp.com/www.if.ufrgs.br/if/wp-content/uploads/2018/04/default-profile.png?w=300&ssl=1" class="w-10 h-10 rounded-full" alt="Admin">
-                <span class="font-semibold">Admin</span>
+                <div class="relative">
+                    <button id="userMenuButton" class="flex items-center space-x-2 focus:outline-none" aria-expanded="false" aria-haspopup="true">
+                        <img src="https://i0.wp.com/www.if.ufrgs.br/if/wp-content/uploads/2018/04/default-profile.png?w=300&ssl=1" class="w-10 h-10 rounded-full" alt="Admin">
+                        <span class="font-semibold">Admin</span>
+                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown -->
+                    <div id="userDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white rounded shadow-lg z-50">
+                        <a href="./autenticação/logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</a>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -267,7 +279,7 @@ if ($id_sala) {
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-bold">Materiais</h3>
                     <a href="#" onclick="openModal('modalAddMaterial')">
-                        <button type="button" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" >
+                        <button type="button" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 cursor-pointer" >
                             <i class="fa fa-plus"></i> Importar Material
                         </button>
                     </a>
@@ -322,7 +334,7 @@ if ($id_sala) {
             <div id="tabContentLinks" class="tab-content hidden">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-bold">Materiais</h3>
-                    <button type="button" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onclick="openModal('modalAddLink')">
+                    <button type="button" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 cursor-pointer" onclick="openModal('modalAddLink')">
                         <i class="fa fa-plus"></i> Inserir link
                     </button>
                 </div>
@@ -429,7 +441,8 @@ if ($id_sala) {
                                     </span>
                                     <span>
                                         <a href="./avisos/editAviso.php?id=<?php echo $aviso['id']; ?>" class="text-blue-500 hover:underline mr-2"><i class="fa fa-edit"></i></a>
-                                        <a href="./avisos/deleteAviso.php?id=<?php echo $aviso['id']; ?>" class="text-red-500 hover:underline" onclick="return confirm('Tem certeza que deseja excluir este aviso?')"><i class="fa fa-trash"></i></a>
+                                        <!-- agora usa o modal de confirmação (mesmo comportamento dos materiais) -->
+                                        <a href="javascript:void(0);" onclick="abrirModalExcluir('aviso', <?php echo (int)$aviso['id']; ?>);" class="text-red-500 hover:underline"><i class="fa fa-trash"></i></a>
                                     </span>
                                 </li>
                             <?php endwhile; ?>
@@ -461,10 +474,10 @@ if ($id_sala) {
                                     <label class="block mb-1 font-semibold">Descrição</label>
                                     <textarea name="descricao_sala" class="w-full border px-3 py-2 rounded" rows="6" required></textarea>
                                 </div>
-                                <div class="mb-4">
+                                <!-- <div class="mb-4">
                                     <label class="block mb-1 font-semibold">Imagem da Sala (opcional)</label>
                                     <input type="file" name="img_sala" class="w-full border px-3 py-2 rounded">
-                                </div>
+                                </div> -->
                             </div>
 
                             <div class="flex-[3] flex flex-col items-center justify-start">
@@ -487,7 +500,7 @@ if ($id_sala) {
                             </div>
                         </div>
                         <div class="w-full flex justify-center">
-                            <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Salvar Sala</button>
+                            <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 cursor-pointer">Salvar Sala</button>
                         </div>
                     </form>
                 </div>
@@ -563,7 +576,7 @@ if ($id_sala) {
                      </div>
                  </div>
                 <div class="w-full flex justify-center">
-                    <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Salvar Alterações</button>
+                    <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 cursor-pointer">Salvar Alterações</button>
                 </div>
              </form>
              <?php } ?>
@@ -574,67 +587,66 @@ if ($id_sala) {
     </main>
 </div>
 
-<!-- Modal Adicionar Material (padrão do modal de adicionar transação) -->
-<div id="modalAddMaterial" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h5 class="text-xl font-bold text-cinza-fatec">Adicionar Material</h5>
-            <button type="button" class="text-gray-500 hover:text-gray-700 text-2xl font-bold" onclick="closeModal('modalAddMaterial')">&times;</button>
-        </div>
-        <form action="./Material/addMaterial.php" method="POST" enctype="multipart/form-data">
-            <div class="mb-4">
-                <label for="material_nome" class="block mb-1 font-semibold">Nome do Material</label>
-                <input type="text" class="w-full border px-3 py-2 rounded" id="material_nome" name="nome" required>
-            </div>
-            <div class="mb-4">
-                <label for="material_arquivo" class="block mb-1 font-semibold">Arquivo</label>
-                <input type="file" class="w-full border px-3 py-2 rounded" id="material_arquivo" name="arquivo" required>
-            </div>
-            <input type="hidden" name="id_sala" value="<?php echo htmlspecialchars($salaSelecionada); ?>">
-            <div class="flex justify-end gap-2 mt-6">
-                <button type="button" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 font-semibold" onclick="closeModal('modalAddMaterial')">Cancelar</button>
-                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 font-semibold">Salvar</button>
-            </div>
-        </form>
-    </div>
-</div>
+<div id="modalAddMaterial" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40 hidden" aria-hidden="true">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 z-50 relative">
+         <div class="flex justify-between items-center mb-4">
+             <h5 class="text-xl font-bold text-cinza-fatec">Adicionar Material</h5>
+             <button type="button" class="text-gray-500 hover:text-gray-700 text-2xl font-bold cursor-pointer" onclick="closeModal('modalAddMaterial')">&times;</button>
+         </div>
+         <form action="./Material/addMaterial.php" method="POST" enctype="multipart/form-data">
+             <div class="mb-4">
+                 <label for="material_nome" class="block mb-1 font-semibold">Nome do Material</label>
+                 <input type="text" class="w-full border px-3 py-2 rounded" id="material_nome" name="nome" required>
+             </div>
+             <div class="mb-4">
+                 <label for="material_arquivo" class="block mb-1 font-semibold">Arquivo</label>
+                 <input type="file" class="w-full border px-3 py-2 rounded" id="material_arquivo" name="arquivo" required>
+             </div>
+             <input type="hidden" name="id_sala" value="<?php echo htmlspecialchars($salaSelecionada); ?>">
+             <div class="flex justify-end gap-2 mt-6">
+                 <button type="button" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 font-semibold cursor-pointer" onclick="closeModal('modalAddMaterial')">Cancelar</button>
+                 <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 font-semibold cursor-pointer">Salvar</button>
+             </div>
+         </form>
+     </div>
+ </div>
 
 <!-- Modal Adicionar Link (padrão do modal de adicionar transação) -->
-<div id="modalAddLink" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h5 class="text-xl font-bold text-cinza-fatec">Adicionar Link</h5>
-            <button type="button" class="text-gray-500 hover:text-gray-700 text-2xl font-bold" onclick="closeModal('modalAddLink')">&times;</button>
-        </div>
-        <form action="./Links/addLink.php" method="POST">
-            <div class="mb-4">
-                <label for="link_nome" class="block mb-1 font-semibold">Nome do Link</label>
-                <input type="text" class="w-full border px-3 py-2 rounded" id="link_nome" name="nome" required>
-            </div>
-            <div class="mb-4">
-                <label for="link_url" class="block mb-1 font-semibold">URL</label>
-                <input type="url" class="w-full border px-3 py-2 rounded" id="link_url" name="url" required>
-            </div>
-            <input type="hidden" name="id_sala" value="<?php echo htmlspecialchars($salaSelecionada); ?>">
-            <div class="flex justify-end gap-2 mt-6">
-                <button type="button" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 font-semibold" onclick="closeModal('modalAddLink')">Cancelar</button>
-                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 font-semibold">Salvar</button>
-            </div>
-        </form>
-    </div>
-</div>
+<div id="modalAddLink" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40 hidden" aria-hidden="true">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 z-50 relative">
+         <div class="flex justify-between items-center mb-4">
+             <h5 class="text-xl font-bold text-cinza-fatec">Adicionar Link</h5>
+             <button type="button" class="text-gray-500 hover:text-gray-700 text-2xl font-bold cursor-pointer" onclick="closeModal('modalAddLink')">&times;</button>
+         </div>
+         <form action="./Links/addLink.php" method="POST">
+             <div class="mb-4">
+                 <label for="link_nome" class="block mb-1 font-semibold">Nome do Link</label>
+                 <input type="text" class="w-full border px-3 py-2 rounded" id="link_nome" name="nome" required>
+             </div>
+             <div class="mb-4">
+                 <label for="link_url" class="block mb-1 font-semibold">URL</label>
+                 <input type="url" class="w-full border px-3 py-2 rounded" id="link_url" name="url" required>
+             </div>
+             <input type="hidden" name="id_sala" value="<?php echo htmlspecialchars($salaSelecionada); ?>">
+             <div class="flex justify-end gap-2 mt-6">
+                 <button type="button" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 font-semibold cursor-pointer" onclick="closeModal('modalAddLink')">Cancelar</button>
+                 <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 font-semibold cursor-pointer">Salvar</button>
+             </div>
+         </form>
+     </div>
+ </div>
 
 <!-- Modal de confirmação de exclusão (padrão do dashboard.php) -->
-<div id="modalConfirmarExclusao" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-sm p-6 text-center">
-        <h3 class="text-xl font-bold mb-4 text-red-600">Confirmar Exclusão</h3>
-        <p class="mb-6 text-gray-700" id="textoConfirmacaoExclusao">Tem certeza que deseja excluir este item?</p>
-        <div class="flex justify-center gap-4">
-            <button id="btnConfirmarExclusao" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 font-semibold">Excluir</button>
-            <button id="btnCancelarExclusao" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 font-semibold">Cancelar</button>
-        </div>
-    </div>
-</div>
+<div id="modalConfirmarExclusao" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40 hidden" aria-hidden="true">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-sm p-6 text-center z-50 relative">
+         <h3 class="text-xl font-bold mb-4 text-red-600">Confirmar Exclusão</h3>
+         <p class="mb-6 text-gray-700" id="textoConfirmacaoExclusao">Tem certeza que deseja excluir este item?</p>
+         <div class="flex justify-center gap-4">
+             <button id="btnConfirmarExclusao" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 font-semibold cursor-pointer">Excluir</button>
+             <button id="btnCancelarExclusao" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 font-semibold cursor-pointer">Cancelar</button>
+         </div>
+     </div>
+ </div>
 
 <script>
 // Sidebar: toggle submenu de salas
@@ -676,61 +688,82 @@ function showTab(tab) {
     }
 }
 
-// Avisos: mostrar conteúdo de avisos ao clicar
+
+function hideAllMainSections() {
+    const ids = ['salaTabs', 'avisosContent', 'mensagemInicial', 'addSalaContent', 'editSalaContent'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+    // também esconder sub-inners dentro do container de edição
+    const addInner = document.getElementById('addSalaInner');
+    const editInner = document.getElementById('editFormInner');
+    if (addInner) addInner.classList.add('hidden');
+    if (editInner) editInner.classList.add('hidden');
+}
+
+/* mostra apenas a área de sala (quando navega para ?sala=ID) */
+function showSalaArea() {
+    hideAllMainSections();
+    const salaTabs = document.getElementById('salaTabs');
+    if (salaTabs) salaTabs.classList.remove('hidden');
+}
+
+/* Botão Avisos */
 document.getElementById('btnAvisos').addEventListener('click', function() {
-    document.getElementById('salaTabs').classList.add('hidden');
-    document.getElementById('avisosContent').classList.remove('hidden');
-    document.getElementById('mensagemInicial').classList.add('hidden');
+    hideAllMainSections();
+    const avisos = document.getElementById('avisosContent');
+    if (avisos) avisos.classList.remove('hidden');
 });
 
-// Avisos: mostrar conteúdo das salas ao clicar
+/* Botão Adicionar Sala */
 document.getElementById('AddSala').addEventListener('click', function() {
-    // esconder outras áreas
-    document.getElementById('salaTabs').classList.add('hidden');
-    document.getElementById('avisosContent').classList.add('hidden');
-    document.getElementById('mensagemInicial').classList.add('hidden');
+    hideAllMainSections();
+    const editContainer = document.getElementById('editSalaContent');
+    if (editContainer) editContainer.classList.remove('hidden');
 
-    // mostrar o container que ocupa o mesmo espaço do editar
-    document.getElementById('editSalaContent').classList.remove('hidden');
-
-    // mostrar o formulário de adicionar e garantir que o edit esteja oculto
     const addInner = document.getElementById('addSalaInner');
     const editInner = document.getElementById('editFormInner');
     if (addInner) addInner.classList.remove('hidden');
     if (editInner) editInner.classList.add('hidden');
 
-    // rolar para topo do container
-    document.getElementById('editSalaContent').scrollIntoView({behavior: 'smooth'});
+    editContainer.scrollIntoView({behavior: 'smooth'});
 });
 
-// Modal funções
-function openModal(id) {
-    document.getElementById(id).classList.remove('hidden');
-}
-function closeModal(id) {
-    document.getElementById(id).classList.add('hidden');
-}
-document.querySelectorAll('.fixed.inset-0').forEach(modal => {
-    modal.addEventListener('click', function(e) {
-        if(e.target === modal) modal.classList.add('hidden');
-    });
-});
-document.querySelectorAll('[data-modal-target]').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const modal = document.getElementById(this.getAttribute('data-modal-target'));
-        if(modal) modal.classList.remove('hidden');
+/* Garante que ao clicar em qualquer link de sala do submenu, apenas a sala selecionada seja mostrada.
+   Não previne navegação (o href continua funcionando); esto previne que componentes extras fiquem visíveis
+   em single-page interactions. */
+document.querySelectorAll('#submenuSalas a').forEach(link => {
+    link.addEventListener('click', function() {
+        // antes de navegar, esconder tudo (evita que o formulário de adicionar permaneça visível em SPA flows)
+        hideAllMainSections();
+        // permitir que o link siga normalmente (recarregamento)
     });
 });
 
-// Redirecionar para a aba de edição se editSala estiver na URL
-if (window.location.search.includes('editSala=')) {
-    document.getElementById('salaTabs').classList.add('hidden');
-    document.getElementById('avisosContent').classList.add('hidden');
-    document.getElementById('mensagemInicial').classList.add('hidden');
-    document.getElementById('addSalaContent').classList.add('hidden');
-    document.getElementById('editSalaContent').classList.remove('hidden');
-}
-
+/* Ao carregar a página, decide qual área mostrar com base na query string */
+(function initViewFromUrl(){
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('editSala')) {
+        // mostrar apenas o container de edição (ou o formulário de edição se presente)
+        hideAllMainSections();
+        const editContainer = document.getElementById('editSalaContent');
+        if (editContainer) editContainer.classList.remove('hidden');
+        const editInner = document.getElementById('editFormInner');
+        if (editInner) editInner.classList.remove('hidden');
+        // rolar
+        editContainer && editContainer.scrollIntoView({behavior: 'smooth'});
+        return;
+    }
+    if (params.has('sala')) {
+        showSalaArea();
+        return;
+    }
+    // padrão: mostrar mensagem inicial
+    hideAllMainSections();
+    const msg = document.getElementById('mensagemInicial');
+    if (msg) msg.classList.remove('hidden');
+})();
 </script>
 
 <script>
@@ -796,6 +829,37 @@ if (window.location.search.includes('editSala=')) {
     // sobrescreve qualquer abrirModalExcluir anterior
     window.openModal = window.openModal || function(id){ document.getElementById(id).classList.remove('hidden'); };
     window.closeModal = window.closeModal || function(id){ document.getElementById(id).classList.add('hidden'); };
+})();
+</script>
+
+<script>
+(function(){
+    const btn = document.getElementById('userMenuButton');
+    const menu = document.getElementById('userDropdown');
+    if (!btn || !menu) return;
+
+    btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        const isHidden = menu.classList.contains('hidden');
+        menu.classList.toggle('hidden', !isHidden ? true : false);
+        btn.setAttribute('aria-expanded', String(isHidden));
+    });
+
+    // fechar ao clicar fora
+    document.addEventListener('click', function(e){
+        if (!menu.classList.contains('hidden')) {
+            menu.classList.add('hidden');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    // fechar com Escape
+    document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape' && !menu.classList.contains('hidden')) {
+            menu.classList.add('hidden');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
 })();
 </script>
 

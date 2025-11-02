@@ -72,7 +72,10 @@ HTML;
         <h2 class="text-2xl font-semibold text-gray-800 mb-8 border-b-2 pb-2">PROJETOS E ATIVIDADES</h2>
         <?php
             require_once('../../../assets/bd/conexao.php');
-            \$nomeSala = "{$nome}";
+            // define $nome no arquivo público (para que links use $nome igual ao exemplo da sala github)
+            \$nome = "{$nome}";
+            \$nomeSala = \$nome;
+
             \$sqlSala = "SELECT id FROM sala WHERE nome = ?";
             \$stmtSala = \$conn->prepare(\$sqlSala);
             \$stmtSala->bind_param('s', \$nomeSala);
@@ -93,8 +96,8 @@ HTML;
                 \$stmtTotalMat->bind_param('i', \$id_sala);
                 \$stmtTotalMat->execute();
                 \$resultTotalMat = \$stmtTotalMat->get_result();
-                \$totalMateriais = \$resultTotalMat->fetch_assoc()['total'];
-                \$totalPaginasMat = ceil(\$totalMateriais / \$itensPorPaginaMat);
+                \$totalMateriais = \$resultTotalMat->fetch_assoc()['total'] ?? 0;
+                \$totalPaginasMat = \$totalMateriais > 0 ? ceil(\$totalMateriais / \$itensPorPaginaMat) : 1;
 
                 \$sqlMat = "SELECT * FROM materiais WHERE id_sala = ? ORDER BY data DESC LIMIT ? OFFSET ?";
                 \$stmtMat = \$conn->prepare(\$sqlMat);
@@ -103,31 +106,6 @@ HTML;
                 \$resMat = \$stmtMat->get_result();
                 while (\$row = \$resMat->fetch_assoc()) {
                     \$materiais[] = \$row;
-                }
-            }
-
-            // Links - paginação
-            \$itensPorPaginaLinks = 10;
-            \$paginaAtualLinks = isset(\$_GET['pagina_links']) ? max(1, intval(\$_GET['pagina_links'])) : 1;
-            \$offsetLinks = (\$paginaAtualLinks - 1) * \$itensPorPaginaLinks;
-            \$totalPaginasLinks = 1;
-            \$links = [];
-            if (\$id_sala) {
-                \$sqlTotalLinks = "SELECT COUNT(*) as total FROM links WHERE id_sala = ?";
-                \$stmtTotalLinks = \$conn->prepare(\$sqlTotalLinks);
-                \$stmtTotalLinks->bind_param('i', \$id_sala);
-                \$stmtTotalLinks->execute();
-                \$resultTotalLinks = \$stmtTotalLinks->get_result();
-                \$totalLinks = \$resultTotalLinks->fetch_assoc()['total'];
-                \$totalPaginasLinks = ceil(\$totalLinks / \$itensPorPaginaLinks);
-
-                \$sqlLinks = "SELECT * FROM links WHERE id_sala = ? ORDER BY data DESC LIMIT ? OFFSET ?";
-                \$stmtLinks = \$conn->prepare(\$sqlLinks);
-                \$stmtLinks->bind_param('iii', \$id_sala, \$itensPorPaginaLinks, \$offsetLinks);
-                \$stmtLinks->execute();
-                \$resLinks = \$stmtLinks->get_result();
-                while (\$row = \$resLinks->fetch_assoc()) {
-                    \$links[] = \$row;
                 }
             }
         ?>
@@ -152,8 +130,9 @@ HTML;
                                     <tr class="border-b">
                                         <td class="px-4 py-4"><?php echo htmlspecialchars(\$mat['nome']); ?></td>
                                         <td class="px-6 py-4">
-                                            <a href="../../../assets/arquivos/<?php echo rawurlencode(\$nomeSala); ?>/materiais/<?php echo urlencode(\$mat['arquivo']); ?>"
-                                               target="_blank" class="text-blue-600 underline">
+                                            <a href="../../../assets/arquivos/<?php echo rawurlencode(\$nome); ?>/materiais/<?php echo rawurlencode(\$mat['arquivo']); ?>"
+                                               download="<?php echo htmlspecialchars(\$mat['arquivo']); ?>"
+                                               class="text-blue-600 underline">
                                                 <?php echo htmlspecialchars(\$mat['arquivo']); ?>
                                             </a>
                                         </td>
